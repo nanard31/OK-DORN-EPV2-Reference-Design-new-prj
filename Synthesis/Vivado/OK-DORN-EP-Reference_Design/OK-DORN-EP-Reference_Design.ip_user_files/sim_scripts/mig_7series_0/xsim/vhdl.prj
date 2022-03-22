@@ -1,0 +1,6 @@
+vhdl xil_defaultlib  \
+"../../../../OK-DORN-EP-Reference_Design.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/phy/mig_7series_v4_2_ddr_phy_top.vhd" \
+"../../../../OK-DORN-EP-Reference_Design.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0_mig_sim.vhd" \
+"../../../../OK-DORN-EP-Reference_Design.gen/sources_1/ip/mig_7series_0/mig_7series_0/user_design/rtl/mig_7series_0.vhd" \
+
+nosort

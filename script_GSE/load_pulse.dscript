@@ -1,0 +1,95 @@
+/***********************************************************************************************/
+/***********************************************************************************************/
+PULSE_FILENAME = "gauss1_25.csv"
+COEFF_FILENAME = "" // keep empty if not used
+//
+//                                              delay_RANGE
+//
+MIN_DELAY		=	5// min delay used
+MAX_DELAY		=  28
+// max delay used
+/***********************************************************************************************/
+/***********************************************************************************************/
+
+if (fileExist(PULSE_FILENAME) == false)
+	throw ("Pulse file not found "+PULSE_FILENAME)
+
+lines = readTextFile(PULSE_FILENAME)
+print ("Pulse file:"+PULSE_FILENAME+" ("+lines.length + " values)")
+
+pulseArray = new Array(4096)
+for (index = 0; index < 4096;++index)
+{
+	if (index < lines.length)
+	{
+		value  = parseInt(lines[index])
+		if (isNaN(value))
+		{
+			pulseArray[index] = 0
+		}
+		else
+			pulseArray[index] = value
+	}
+	else
+		pulseArray[index] = 0;
+}
+
+sendToHSL_setWireIn(0, 4)//reset
+waitMs(1000)
+sendToHSL_setWireIn(0, 0)//reset
+
+print ("Loading pulse to Opal Kelly...")
+plot(pulseArray,"pulse")
+if (sendToHSL_LoadPulse(pulseArray) != 0)
+{
+	print("Error encountered....")
+	throw("Error: can't load pulse to Opal Kelly")
+}
+
+print ("Loading pulse done..")
+clearFileContent()
+
+delayArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+aArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+bArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+phiArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+energyArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+bDivAArray = new Array(MAX_DELAY - MIN_DELAY + 1)
+
+addToFile("delay;Energy;Energy32;A;B;Phi")
+	
+delayIndex = 0
+for (delay = MIN_DELAY;delay <= MAX_DELAY;++delay,++delayIndex)
+{
+	request = getNextValue("EVENT_filter_A,EVENT_filter_B,EVENT_phi,EVENT_energy, EVENT_energy32bits","dès que EVENT_energy sera mis a jour");
+	sendToHSL_TrigEvent(delay)
+	
+	waitingForNextValue(request,1000)
+	delayArray[delayIndex] = delay
+	aArray[delayIndex] = EVENT_filter_A
+	bArray[delayIndex] = EVENT_filter_B
+	phiArray[delayIndex] = EVENT_phi
+	energyArray[delayIndex] = EVENT_energy
+
+	bDivAArray[delayIndex] = EVENT_filter_B / EVENT_filter_A
+
+	//print("delay = "+delay+"=> En= "+ EVENT_energy+" ,A="+EVENT_filter_A+" ,B="+EVENT_filter_B+" ,Phi="+EVENT_phi+" ,B/A="+bDivAArray[delayIndex])
+	print(delay+"; "+ EVENT_energy+" ;"+EVENT_energy32bits+" ;"+EVENT_filter_A+" ;"+EVENT_filter_B+" ;"+EVENT_phi)
+	addToFile(delay+";"+ EVENT_energy+" ;"+EVENT_energy32bits+";"+EVENT_filter_A+";"+EVENT_filter_B+";"+EVENT_phi)
+	
+}
+dateStr = currentDateStr("yyyyMMdd_hhmmss")
+
+copyFile(PULSE_FILENAME,"result_"+dateStr+"_input_pulse.txt")
+if (fileExist(COEFF_FILENAME))
+	copyFile(COEFF_FILENAME,"result_"+dateStr+"_coeffs.txt")
+	else
+	{
+	switchToFileContext(1)
+	saveFileContent("result_"+dateStr+"_coeffs.txt")
+	switchToFileContext(0)
+	}
+	
+saveFileContent("banana_results.txt")
+print("Results saved to result_"+dateStr+".txt")
+

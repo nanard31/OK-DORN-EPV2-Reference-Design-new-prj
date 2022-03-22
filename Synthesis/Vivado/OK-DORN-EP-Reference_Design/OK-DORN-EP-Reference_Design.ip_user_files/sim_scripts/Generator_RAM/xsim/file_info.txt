@@ -1,0 +1,2 @@
+Generator_RAM.v,verilog,xil_defaultlib,../../../../OK-DORN-EP-Reference_Design.gen/sources_1/ip/Generator_RAM/sim/Generator_RAM.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v
