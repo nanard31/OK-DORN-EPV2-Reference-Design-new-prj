@@ -48,23 +48,23 @@ entity Filter_Front_dispatch is
 		-- data science input
 		
 		-- id
-		i_id					:	in std_logic_vector(1 downto 0);
+		i_id					:	in std_logic_vector(2 downto 0);
 		
 		-- Ready flag buffers
-		i_DU_ADC_Ready			:	in std_logic_vector(0 to 3);
+		i_DU_ADC_Ready			:	in std_logic_vector(0 to 7);
 		
 		-- DU_ADC Data
-		i_DU_ADC_Dout 			:	in Array_4x16_type;
+		i_DU_ADC_Dout 			:	in Array_8x16_type;
 	
 		-- to another Sum block
 
 		o_out				: out	std_logic_vector(15 downto 0);
-		o_rdy				: out 	std_logic_vector(0 to 3);
-		o_id				: out 	std_logic_vector(1 downto 0);
+		o_rdy				: out 	std_logic_vector(0 to 7);
+		o_id				: out 	std_logic_vector(2 downto 0);
 		
 		--sum	
 		
-		sum					: inout Array_4x31_type
+		sum					: inout Array_8x31_type
 				
 		
 	);
@@ -78,11 +78,11 @@ architecture Behavioral of Filter_Front_dispatch is
 	
 	--	RAM0B coef 
 	signal wea		: std_logic_vector(0 downto 0);
-	signal addra	: unsigned(7 downto 0);
+	signal addra	: unsigned(8 downto 0);
 	signal dina		: unsigned(15 downto 0);
 	signal douta	: std_logic_vector(15 downto 0);
 	
-	signal addrb	: unsigned(7 downto 0);
+	signal addrb	: unsigned(8 downto 0);
 	signal dinb		: unsigned(15 downto 0);
 	signal doutb	: std_logic_vector(15 downto 0);
 
@@ -95,7 +95,7 @@ architecture Behavioral of Filter_Front_dispatch is
 	signal view_i_Din	: signed(15 downto 0);
 	signal view_doutb	: signed(15 downto 0);
 
-	signal save_i_id	: std_logic_vector(1 downto 0);
+	signal save_i_id	: std_logic_vector(2 downto 0);
 
 	signal doutb_array	:	Array_8x16_type;
 	
@@ -191,7 +191,7 @@ begin
 					
 					when load_ram_manage_ptr =>
 					
-						if 	unsigned(save_i_id) = 3 and ptr_wr < i_size then 	-- set deep A0......A7
+						if 	unsigned(save_i_id) = 7 and ptr_wr < i_size then 	-- set deep A0......A7
 						
 						-- case increment pointer and continous RAM  loading
 						ptr_wr	<= ptr_wr + 1;
@@ -219,7 +219,7 @@ begin
 						
 						save_i_id <= i_id; 
 						
-						doutb_array(To_integer(unsigned(i_id)+3))	<=	doutb;
+						doutb_array(To_integer(unsigned(i_id)+7))	<=	doutb;
 						
 						-- write data RAM
 						wea		<= "1";

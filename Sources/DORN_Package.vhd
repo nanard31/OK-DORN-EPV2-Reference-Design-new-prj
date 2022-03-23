@@ -264,12 +264,16 @@ package DORN_Package is
     -- Event Processor
     ----------------------------------------------------------------------------------
 
+
+	
     type Array_8x6_type is array (0 to 7) of std_logic_vector(5 downto 0); -- Array 8 x 6
     type Array_8x16_type is array (0 to 7) of std_logic_vector(15 downto 0); -- Array 8 x 16
 	
 	type Array_4x31_type is array (0 to 3) of signed(31 downto 0); -- Array 8 x 16
+	type Array_8x31_type is array (0 to 7) of signed(31 downto 0); -- Array 8 x 16
 	
 	type Array_4x16_type is array (0 to 3) of std_logic_vector(15 downto 0); -- Array 4 x 16
+	
     -- constant C_DU_ADC_LLD_DEFAULT  : std_logic_vector(15 downto 0) := X"7777"; -- DEBUG value
     -- constant C_DU_THLD_1H_DEFAULT  : std_logic_vector(15 downto 0) := X"8888"; -- DEBUG value
     -- constant C_DU_THLD_RAW_DEFAULT : std_logic_vector(15 downto 0) := X"9999"; -- DEBUG value

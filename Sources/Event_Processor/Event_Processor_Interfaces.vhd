@@ -109,10 +109,10 @@ entity Event_Processor_Interfaces is
 		--------------------------------------------------------------------------------------------
         -- ADC SPI
         --------------------------------------------------------------------------------------------
-		o_ADC_SCK     	: out std_logic_vector(0 to 3);             -- SPI Serial Clock
-        o_ADC_CNV_n   	: out std_logic_vector(0 to 3);             -- SPI Convert Input, negative polarity
-        i_ADC_SDO_front	: in  std_logic_vector(0 to 3);             -- SPI Slave Data Output (MISO)
-		i_ADC_SDO_back	: in  std_logic_vector(0 to 3)              -- SPI Slave Data Output (MISO)	
+		o_ADC_SCK     	: out std_logic_vector(0 to 7);             -- SPI Serial Clock
+        o_ADC_CNV_n   	: out std_logic_vector(0 to 7);             -- SPI Convert Input, negative polarity
+        i_ADC_SDO_front	: in  std_logic_vector(0 to 7);             -- SPI Slave Data Output (MISO)
+		i_ADC_SDO_back	: in  std_logic_vector(0 to 7)              -- SPI Slave Data Output (MISO)	
                
     );
 
@@ -207,16 +207,16 @@ architecture Behavioral of Event_Processor_Interfaces is
 	signal counter						: integer;
 	signal delay_end					: std_logic;
 
-	signal DU_ADC_Ready_100_front		: std_logic_vector(0 to 3);
-	signal DU_ADC_Ready_100_back		: std_logic_vector(0 to 3);
+	signal DU_ADC_Ready_100_front		: std_logic_vector(0 to 7);
+	signal DU_ADC_Ready_100_back		: std_logic_vector(0 to 7);
 	
 			-- id
-	signal id_front						:	std_logic_vector(1 downto 0);
-	signal id_back						:	std_logic_vector(1 downto 0);
+	signal id_front						:	std_logic_vector(2 downto 0);
+	signal id_back						:	std_logic_vector(2 downto 0);
 
 	-- -- DU_ADC Data
-	signal DU_ADC_Front_Dout 			: Array_4x16_type;
-	signal DU_ADC_Back_Dout	 			: Array_4x16_type;
+	signal DU_ADC_Front_Dout 			: Array_8x16_type;
+	signal DU_ADC_Back_Dout	 			: Array_8x16_type;
 	
 begin
 

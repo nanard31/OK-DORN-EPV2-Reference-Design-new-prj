@@ -60,16 +60,16 @@ entity Event_Processor is
         --------------------------------------------------------------------------------------------
  
 		-- id
-		i_id_front				:	in std_logic_vector(1 downto 0);
-		i_id_back				:	in std_logic_vector(1 downto 0);
+		i_id_front				:	in std_logic_vector(2 downto 0);
+		i_id_back				:	in std_logic_vector(2 downto 0);
 		
 		-- Ready flag buffers
-		i_DU_ADC_Ready_100_front	:	in std_logic_vector(0 to 3);
-		i_DU_ADC_Ready_100_back 	:	in std_logic_vector(0 to 3);
+		i_DU_ADC_Ready_100_front	:	in std_logic_vector(0 to 7);
+		i_DU_ADC_Ready_100_back 	:	in std_logic_vector(0 to 7);
 		
 		-- DU_ADC Data
-		DU_ADC_Front_Dout 		:	in Array_4x16_type;
-		DU_ADC_Back_Dout	 	:	in Array_4x16_type;	
+		DU_ADC_Front_Dout 		:	in Array_8x16_type;
+		DU_ADC_Back_Dout	 	:	in Array_8x16_type;	
 		        
         -------------------------------
         -- Out event processor

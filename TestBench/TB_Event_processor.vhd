@@ -25,6 +25,7 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.math_real.all;
 use STD.textio.all;
 
+use work.DORN_Package.ALL;
 --library NX;
 --use NX.nxPackage.all;
 
@@ -33,6 +34,10 @@ entity TB_Event_processor is
 end TB_Event_processor;
 
 architecture Behavioral of TB_Event_processor is
+
+
+
+	
 	signal TB_Reset_n             : std_logic;
 	signal TB_Reset        		  : std_logic;
 	signal i                      : integer range 0 to 20;
@@ -127,34 +132,35 @@ architecture Behavioral of TB_Event_processor is
     --    signal FE_P7V_On_Off : std_logic;
     --    signal FE_M7V_On_Off : std_logic;
 
-    signal DU_ADC_CNV_n     : std_logic_vector(0 to 3);
-    signal DU_ADC_SCK       : std_logic_vector(0 to 3);
-    signal DU_Front_ADC_SDO : std_logic_vector(0 to 3);
-    signal DU_Back_ADC_SDO  : std_logic_vector(0 to 3);
+    signal DU_ADC_CNV_n     : std_logic_vector(0 to 7);
+    signal DU_ADC_SCK       : std_logic_vector(0 to 7);
+    signal DU_Front_ADC_SDO : std_logic_vector(0 to 7);
+    signal DU_Back_ADC_SDO  : std_logic_vector(0 to 7);
 
-    signal DU_ADC_CNV_n_Delayed     : std_logic_vector(0 to 3);
-    signal DU_ADC_SCK_Delayed       : std_logic_vector(0 to 3);
-    signal DU_Front_ADC_SDO_Delayed : std_logic_vector(0 to 3);
-    signal DU_Back_ADC_SDO_Delayed  : std_logic_vector(0 to 3);
+    signal DU_ADC_CNV_n_Delayed     : std_logic_vector(0 to 7);
+    signal DU_ADC_SCK_Delayed       : std_logic_vector(0 to 7);
+    signal DU_Front_ADC_SDO_Delayed : std_logic_vector(0 to 7);
+    signal DU_Back_ADC_SDO_Delayed  : std_logic_vector(0 to 7);
 
-	signal FIFO_OUT_rd_en : std_logic_vector(0 to 3);
+	signal FIFO_OUT_rd_en : std_logic_vector(0 to 7);
 	
-	type Array_4x31_type is array (0 to 3) of std_logic_vector(31 downto 0); -- Array 8 x 16
-    signal FIFO_OUT_dout  : Array_4x31_type;
+	type Array_8x31_type is array (0 to 7) of std_logic_vector(31 downto 0); -- Array 8 x 16
+    signal FIFO_OUT_dout  : Array_8x31_type;
 
 	
 	-- ramp generation synchronous on o_Dout_rdy_r
-	type count_array is array (0 to 3) of integer range 0 to 15; 
+	type count_array is array (0 to 7) of integer range 0 to 15; 
 	signal count			:	count_array; 
 	signal count_ampli  	:	integer range 0 to 15; 
 	signal unsigned_count	:	unsigned(15 downto 0);
 	signal unsigned_count_gain	:	unsigned(15 downto 0);
-	type up_array is array (0 to 3) of std_logic;	
+	type up_array is array (0 to 7) of std_logic;	
 	signal up				:	up_array;
-	type delay_inter_ramp_array is array (0 to 3) of integer range 0 to 1000;
+	type delay_inter_ramp_array is array (0 to 7) of integer range 0 to 1000;
 	signal delay_inter_ramp	:	delay_inter_ramp_array;	 
-	type Gain_ramp_array	is array (0 to 3) of integer range 0 to 1000;	
-	signal Gain_ramp  		:	Gain_ramp_array;		
+		
+	type Gain_ramp_array	is array (0 to 7) of integer;	
+	signal Gain_ramp  :	Gain_ramp_array;
 	
 begin
 -------------------------------------------------------
@@ -450,7 +456,7 @@ TB_CLOCK_200MHZ_process : process
 		-- --ramp generation synchronous on o_Dout_rdy_r
 		-- --------------------------------------------------------------------------------------
 
-label_generate : for i in 0 to 3 generate				
+label_generate : for i in 0 to 7 generate				
 	ramp_generation_synchronous : process
 		begin
 			count(i)	<=	0;
@@ -477,11 +483,19 @@ label_generate : for i in 0 to 3 generate
 									count(i)	<=	0;
 									up(i)		<=	'1';
 									--Gain_ramp	<=	Gain_ramp+200;
-									Gain_ramp(i)	<=	200;
+									Gain_ramp(i)	<=	1000*(i+1);
+									-- Gain_ramp(1)	<=	2000;
+									-- Gain_ramp(2)	<=	2000;
+									-- Gain_ramp(3)	<=	2000;
+									-- Gain_ramp(4)	<=	4000;
+									-- Gain_ramp(5)	<=	1000;
+									-- Gain_ramp(6)	<=	2000;
+									-- Gain_ramp(7)	<=	3000;
+									
 									delay_inter_ramp(i)	<=	0;
-										if	Gain_ramp(i) >= 2000 then	-- detect max gain	--130
-										Gain_ramp(i)	<= 0;
-										end if;
+										--if	Gain_ramp(i) >= 2000 then	-- detect max gain	--130
+										--Gain_ramp(i)	<= 0;
+										--end if;
 									end if;
 								end if;
 							end if;
@@ -509,7 +523,7 @@ end generate label_generate;
     DU_Front_ADC_SDO_Delayed <= transport DU_Front_ADC_SDO after C_Output_DelayLine;
     DU_Back_ADC_SDO_Delayed  <= transport DU_Back_ADC_SDO after C_Output_DelayLine;
 
-    gen_ADCLTC2311_Emulators_Parallel : for i in 0 to 3 generate
+    gen_ADCLTC2311_Emulators_Parallel : for i in 0 to 7 generate
         inst_ADCLTC2311_Emulators : entity work.ADCLTC2311_Emulators
             port map(
                 i_Rst_n         => TB_Reset_n,
