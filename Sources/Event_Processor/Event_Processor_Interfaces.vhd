@@ -234,12 +234,7 @@ begin
 		
 			-- Clocks
 			i_Clk       		=> i_Clk, --i_Clk,
-			
-			-- Id et ready
-			
-		   	o_id_front			=> id_front,
-			o_id_back			=> id_back,
-			
+				
 			DU_ADC_Ready_100_front => DU_ADC_Ready_100_front,
 			DU_ADC_Ready_100_back  => DU_ADC_Ready_100_back,
 			
@@ -327,13 +322,7 @@ begin
  	
 		i_Din_RDY 					=> i_Din_RDY,	--: in std_logic;
 		i_Din						=> i_Din,		--: in std_logic_vector(15 downto 0);
-		
-		-- Id et ready
-			
-			
-		i_id_front					=> id_front,
-		i_id_back					=> id_back,
-			
+				
 		i_DU_ADC_Ready_100_front	=> DU_ADC_Ready_100_front,
 		i_DU_ADC_Ready_100_back  	=> DU_ADC_Ready_100_back,	
 		
@@ -341,8 +330,6 @@ begin
 		DU_ADC_Front_Dout			=> DU_ADC_Front_Dout,
 		DU_ADC_Back_Dout	 		=> DU_ADC_Back_Dout,
 		
-		
- 
         --	o_EP_Division_Done    : out std_logic;
         
         -- Out event processor

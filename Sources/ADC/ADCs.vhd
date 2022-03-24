@@ -21,14 +21,10 @@ entity ADCs is
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
- 
-		-- id
-		o_id_front	:	out std_logic_vector(2 downto 0);
-		o_id_back	:	out std_logic_vector(2 downto 0);
-		
+ 		
 		-- Ready flag buffers
-		DU_ADC_Ready_100_front : inout std_logic_vector(0 to 7);
-		DU_ADC_Ready_100_back  : inout std_logic_vector(0 to 7);
+		DU_ADC_Ready_100_front 	: out std_logic_vector(0 to 7);
+		DU_ADC_Ready_100_back  	: out std_logic_vector(0 to 7);
 		
 		-- DU_ADC Data
 		DU_ADC_Front_Dout 		: out Array_8x16_type;
@@ -51,9 +47,7 @@ architecture RTL of ADCs is
     
 signal DU_ADC_Pulse_En : std_logic;
 
--- Ready flag buffers
-signal DU_ADC_Ready_100_front_concat   : std_logic_vector(7 downto 0);
-signal DU_ADC_Ready_100_back_concat	: std_logic_vector(7 downto 0);
+
 
 begin
 
@@ -102,29 +96,6 @@ begin
         end if;
     end process label_enable;
 
-DU_ADC_Ready_100_front_concat <= (DU_ADC_Ready_100_front(7)&DU_ADC_Ready_100_front(6)&DU_ADC_Ready_100_front(5)&DU_ADC_Ready_100_front(4))&
-									(DU_ADC_Ready_100_front(3)&DU_ADC_Ready_100_front(2)&DU_ADC_Ready_100_front(1)&DU_ADC_Ready_100_front(0)); 	
-									
-DU_ADC_Ready_100_back_concat <=  (DU_ADC_Ready_100_back(7)&DU_ADC_Ready_100_back(6)&DU_ADC_Ready_100_back(5)&DU_ADC_Ready_100_back(4))&
-									DU_ADC_Ready_100_back(3)&DU_ADC_Ready_100_back(2)&DU_ADC_Ready_100_back(1)&DU_ADC_Ready_100_back(0);	
-	
-o_id_front	<=	"000" when	DU_ADC_Ready_100_front_concat = "00000001" else
-				"001" when	DU_ADC_Ready_100_front_concat = "00000010" else
-				"010" when	DU_ADC_Ready_100_front_concat = "00000100" else
-				"011" when	DU_ADC_Ready_100_front_concat = "00001000" else
-				"100" when	DU_ADC_Ready_100_front_concat = "00010000" else
-				"101" when	DU_ADC_Ready_100_front_concat = "00100000" else
-				"110" when	DU_ADC_Ready_100_front_concat = "01000000" else
-				"111" when	DU_ADC_Ready_100_front_concat = "10000000" else
-				"000";			
-o_id_back	<= 	"000" when	DU_ADC_Ready_100_back_concat = "00000001" else
-				"001" when	DU_ADC_Ready_100_back_concat = "00000010" else
-				"010" when	DU_ADC_Ready_100_back_concat = "00000100" else
-				"011" when	DU_ADC_Ready_100_back_concat = "00001000" else
-				"100" when	DU_ADC_Ready_100_back_concat = "00010000" else
-				"101" when	DU_ADC_Ready_100_back_concat = "00100000" else
-				"110" when	DU_ADC_Ready_100_back_concat = "01000000" else
-				"111" when	DU_ADC_Ready_100_back_concat = "10000000" else
-				"000";	
+
 	
 end architecture RTL;

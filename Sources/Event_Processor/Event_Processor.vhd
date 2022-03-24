@@ -59,10 +59,6 @@ entity Event_Processor is
         -- ADC
         --------------------------------------------------------------------------------------------
  
-		-- id
-		i_id_front				:	in std_logic_vector(2 downto 0);
-		i_id_back				:	in std_logic_vector(2 downto 0);
-		
 		-- Ready flag buffers
 		i_DU_ADC_Ready_100_front	:	in std_logic_vector(0 to 7);
 		i_DU_ADC_Ready_100_back 	:	in std_logic_vector(0 to 7);
@@ -173,12 +169,9 @@ begin
 
 		
 			-- data science input
-			
-			-- id
-			i_id					=>	i_id_front,
-		
+				
 			-- Ready flag buffers
-			i_DU_ADC_Ready			=>	i_DU_ADC_Ready_100_front,
+			i_DU_ADC_Ready_100_front=>	i_DU_ADC_Ready_100_front,
 			
 			-- DU_ADC Data
 			i_DU_ADC_Dout 			=>	DU_ADC_Front_Dout,

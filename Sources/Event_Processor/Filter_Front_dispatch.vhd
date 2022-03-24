@@ -38,33 +38,30 @@ entity Filter_Front_dispatch is
 		
 		-- Reset and Clock
 		
-		i_Rst_n             : in  std_logic;
-		i_CLOCK_100_MHZ     : in  std_logic;
+		i_Rst_n            		:	in  std_logic;
+		i_CLOCK_100_MHZ     	:	in  std_logic;
 		
 		-- Param
 		
-		i_size				: in unsigned(5 downto 0);
+		i_size					:	in unsigned(5 downto 0);
 			
 		-- data science input
 		
-		-- id
-		i_id					:	in std_logic_vector(2 downto 0);
-		
 		-- Ready flag buffers
-		i_DU_ADC_Ready			:	in std_logic_vector(0 to 7);
+		i_DU_ADC_Ready_100_front:	in std_logic_vector(0 to 7);
 		
 		-- DU_ADC Data
-		i_DU_ADC_Dout 			:	in Array_8x16_type;
+		i_DU_ADC_Dout 			:	in 	Array_8x16_type;
 	
 		-- to another Sum block
 
-		o_out				: out	std_logic_vector(15 downto 0);
-		o_rdy				: out 	std_logic_vector(0 to 7);
-		o_id				: out 	std_logic_vector(2 downto 0);
+		o_out					:	out		std_logic_vector(15 downto 0);
+		o_rdy					:	out 	std_logic_vector(0 to 7);
+		o_id					:	out 	std_logic_vector(2 downto 0);
 		
 		--sum	
 		
-		sum					: inout Array_8x31_type
+		sum						:	inout Array_8x31_type
 				
 		
 	);
@@ -98,6 +95,13 @@ architecture Behavioral of Filter_Front_dispatch is
 	signal save_i_id	: std_logic_vector(2 downto 0);
 
 	signal doutb_array	:	Array_8x16_type;
+	
+	-- Ready flag buffers
+	signal i_DU_ADC_Ready_100_front_concat   : std_logic_vector(7 downto 0);
+	signal DU_ADC_Ready_100_back_concat	: std_logic_vector(7 downto 0);
+	
+	 -- id
+	signal	i_id		: std_logic_vector(2 downto 0);
 	
 begin
   
@@ -170,12 +174,13 @@ begin
 			if rising_edge(i_CLOCK_100_MHZ) then
 			
 			wea		<= "0";
+			o_rdy	<= (others => '0');	
 			
 				case case_FSM_ReadState is
 				
 					when load_ram_wait_rdy =>
 					
-						if i_DU_ADC_Ready(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
+						if i_DU_ADC_Ready_100_front(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
 						
 						save_i_id <= i_id; 
 						
@@ -215,7 +220,7 @@ begin
 				
 					when wait_rdy =>
 												
-						if i_DU_ADC_Ready(To_integer(unsigned(i_id))) = '1' then -- test before each sum
+						if i_DU_ADC_Ready_100_front(To_integer(unsigned(i_id))) = '1' then -- test before each sum
 						
 						save_i_id <= i_id; 
 						
@@ -231,7 +236,7 @@ begin
 						-- out component
 						o_out	<=	doutb_array(To_integer(unsigned(i_id)));
 						o_id	<=	i_id;	
-						o_rdy	<=	i_DU_ADC_Ready;
+						o_rdy(To_integer(unsigned(i_id)))<=	'1';
 						
 						-- sum
 						sum(To_integer(unsigned(i_id)))	<=	sum(To_integer(unsigned(i_id))) + signed(i_DU_ADC_Dout(To_integer(unsigned(i_id)))) - signed(doutb_array(To_integer(unsigned(i_id))));  
@@ -288,5 +293,31 @@ begin
 		
 	end process;
 
+i_DU_ADC_Ready_100_front_concat <= (i_DU_ADC_Ready_100_front(7)&i_DU_ADC_Ready_100_front(6)&i_DU_ADC_Ready_100_front(5)&i_DU_ADC_Ready_100_front(4))&
+									(i_DU_ADC_Ready_100_front(3)&i_DU_ADC_Ready_100_front(2)&i_DU_ADC_Ready_100_front(1)&i_DU_ADC_Ready_100_front(0)); 	
+									
+-- DU_ADC_Ready_100_back_concat <=  (DU_ADC_Ready_100_back(7)&DU_ADC_Ready_100_back(6)&DU_ADC_Ready_100_back(5)&DU_ADC_Ready_100_back(4))&
+									-- DU_ADC_Ready_100_back(3)&DU_ADC_Ready_100_back(2)&DU_ADC_Ready_100_back(1)&DU_ADC_Ready_100_back(0);	
+	
+i_id		<=	"000" when	i_DU_ADC_Ready_100_front_concat = "00000001" else
+				"001" when	i_DU_ADC_Ready_100_front_concat = "00000010" else
+				"010" when	i_DU_ADC_Ready_100_front_concat = "00000100" else
+				"011" when	i_DU_ADC_Ready_100_front_concat = "00001000" else
+				"100" when	i_DU_ADC_Ready_100_front_concat = "00010000" else
+				"101" when	i_DU_ADC_Ready_100_front_concat = "00100000" else
+				"110" when	i_DU_ADC_Ready_100_front_concat = "01000000" else
+				"111" when	i_DU_ADC_Ready_100_front_concat = "10000000" else
+				"000";			
+-- id_back	<= 	"000" when	DU_ADC_Ready_100_back_concat = "00000001" else
+				-- "001" when	DU_ADC_Ready_100_back_concat = "00000010" else
+				-- "010" when	DU_ADC_Ready_100_back_concat = "00000100" else
+				-- "011" when	DU_ADC_Ready_100_back_concat = "00001000" else
+				-- "100" when	DU_ADC_Ready_100_back_concat = "00010000" else
+				-- "101" when	DU_ADC_Ready_100_back_concat = "00100000" else
+				-- "110" when	DU_ADC_Ready_100_back_concat = "01000000" else
+				-- "111" when	DU_ADC_Ready_100_back_concat = "10000000" else
+				-- "000";		
+	
+	
 end;
 
