@@ -156,7 +156,7 @@ begin
     -----------------------------------------------------------------
 
 
-    Inst_Filter_Front_dispatch : entity work.Filter_Front_dispatch
+    Inst_Sum : entity work.Sum
         port map(
 		
             i_Rst_n				=> i_Rst_n,
@@ -184,7 +184,7 @@ begin
 			
 			--sum	
 		
-			sum					=>	open
+			o_sum				=>	open
   
         );		
 
