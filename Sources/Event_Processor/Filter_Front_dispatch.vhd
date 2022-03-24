@@ -48,10 +48,10 @@ entity Filter_Front_dispatch is
 		-- data science input
 		
 		-- Ready flag buffers
-		i_DU_ADC_Ready_100_front:	in std_logic_vector(0 to 7);
+		i_Rdy					:	in std_logic_vector(0 to 7);
 		
 		-- DU_ADC Data
-		i_DU_ADC_Dout 			:	in 	Array_8x16_type;
+		i_Din 					:	in 	Array_8x16_type;
 	
 		-- to another Sum block
 
@@ -97,7 +97,7 @@ architecture Behavioral of Filter_Front_dispatch is
 	signal doutb_array	:	Array_8x16_type;
 	
 	-- Ready flag buffers
-	signal i_DU_ADC_Ready_100_front_concat   : std_logic_vector(7 downto 0);
+	signal Rdy_concat   : std_logic_vector(7 downto 0);
 	signal DU_ADC_Ready_100_back_concat	: std_logic_vector(7 downto 0);
 	
 	 -- id
@@ -180,12 +180,12 @@ begin
 				
 					when load_ram_wait_rdy =>
 					
-						if i_DU_ADC_Ready_100_front(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
+						if i_Rdy(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
 						
 						save_i_id <= i_id; 
 						
 						wea		<= "1";
-						dina	<= 	unsigned(i_DU_ADC_Dout(To_integer(unsigned(i_id))));		-- write data RAM
+						dina	<= 	unsigned(i_Din(To_integer(unsigned(i_id))));		-- write data RAM
 						addra	<=	unsigned(i_id)&ptr_wr;	-- set write RAM add 
 						
 						case_FSM_ReadState <=  load_ram_manage_ptr;	
@@ -220,7 +220,7 @@ begin
 				
 					when wait_rdy =>
 												
-						if i_DU_ADC_Ready_100_front(To_integer(unsigned(i_id))) = '1' then -- test before each sum
+						if i_Rdy(To_integer(unsigned(i_id))) = '1' then -- test before each sum
 						
 						save_i_id <= i_id; 
 						
@@ -228,7 +228,7 @@ begin
 						
 						-- write data RAM
 						wea		<= "1";
-						dina	<= 	unsigned(i_DU_ADC_Dout(To_integer(unsigned(i_id))));	
+						dina	<= 	unsigned(i_Din(To_integer(unsigned(i_id))));	
 						
 						addra	<=	unsigned(i_id)&ptr_wr;	-- set write RAM add 
 						addrb	<=	unsigned(i_id)&ptr_rd;	-- set read	RAM add 
@@ -239,11 +239,11 @@ begin
 						o_rdy(To_integer(unsigned(i_id)))<=	'1';
 						
 						-- sum
-						sum(To_integer(unsigned(i_id)))	<=	sum(To_integer(unsigned(i_id))) + signed(i_DU_ADC_Dout(To_integer(unsigned(i_id)))) - signed(doutb_array(To_integer(unsigned(i_id))));  
+						sum(To_integer(unsigned(i_id)))	<=	sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id)))) - signed(doutb_array(To_integer(unsigned(i_id))));  
 							
 						-----------------debug-----------------------------------------------------------------
-						view_sum 	<= sum(To_integer(unsigned(i_id))) + signed(i_DU_ADC_Dout(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
-						view_i_Din	<= signed(i_DU_ADC_Dout(To_integer(unsigned(i_id))));
+						view_sum 	<= sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
+						view_i_Din	<= signed(i_Din(To_integer(unsigned(i_id))));
 						view_doutb	<= signed(doutb_array(To_integer(unsigned(i_id))));
 						-------------------------------------------------------------------------------------
 						
@@ -293,20 +293,19 @@ begin
 		
 	end process;
 
-i_DU_ADC_Ready_100_front_concat <= (i_DU_ADC_Ready_100_front(7)&i_DU_ADC_Ready_100_front(6)&i_DU_ADC_Ready_100_front(5)&i_DU_ADC_Ready_100_front(4))&
-									(i_DU_ADC_Ready_100_front(3)&i_DU_ADC_Ready_100_front(2)&i_DU_ADC_Ready_100_front(1)&i_DU_ADC_Ready_100_front(0)); 	
+Rdy_concat <= (i_Rdy(7)&i_Rdy(6)&i_Rdy(5)&i_Rdy(4))&(i_Rdy(3)&i_Rdy(2)&i_Rdy(1)&i_Rdy(0)); 	
 									
 -- DU_ADC_Ready_100_back_concat <=  (DU_ADC_Ready_100_back(7)&DU_ADC_Ready_100_back(6)&DU_ADC_Ready_100_back(5)&DU_ADC_Ready_100_back(4))&
 									-- DU_ADC_Ready_100_back(3)&DU_ADC_Ready_100_back(2)&DU_ADC_Ready_100_back(1)&DU_ADC_Ready_100_back(0);	
 	
-i_id		<=	"000" when	i_DU_ADC_Ready_100_front_concat = "00000001" else
-				"001" when	i_DU_ADC_Ready_100_front_concat = "00000010" else
-				"010" when	i_DU_ADC_Ready_100_front_concat = "00000100" else
-				"011" when	i_DU_ADC_Ready_100_front_concat = "00001000" else
-				"100" when	i_DU_ADC_Ready_100_front_concat = "00010000" else
-				"101" when	i_DU_ADC_Ready_100_front_concat = "00100000" else
-				"110" when	i_DU_ADC_Ready_100_front_concat = "01000000" else
-				"111" when	i_DU_ADC_Ready_100_front_concat = "10000000" else
+i_id		<=	"000" when	Rdy_concat = "00000001" else
+				"001" when	Rdy_concat = "00000010" else
+				"010" when	Rdy_concat = "00000100" else
+				"011" when	Rdy_concat = "00001000" else
+				"100" when	Rdy_concat = "00010000" else
+				"101" when	Rdy_concat = "00100000" else
+				"110" when	Rdy_concat = "01000000" else
+				"111" when	Rdy_concat = "10000000" else
 				"000";			
 -- id_back	<= 	"000" when	DU_ADC_Ready_100_back_concat = "00000001" else
 				-- "001" when	DU_ADC_Ready_100_back_concat = "00000010" else

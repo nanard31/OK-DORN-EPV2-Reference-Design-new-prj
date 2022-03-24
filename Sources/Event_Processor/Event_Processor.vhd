@@ -171,10 +171,10 @@ begin
 			-- data science input
 				
 			-- Ready flag buffers
-			i_DU_ADC_Ready_100_front=>	i_DU_ADC_Ready_100_front,
+			i_Rdy			=>	i_DU_ADC_Ready_100_front,
 			
 			-- DU_ADC Data
-			i_DU_ADC_Dout 			=>	DU_ADC_Front_Dout,
+			i_Din 			=>	DU_ADC_Front_Dout,
 			
 			-- to another Sum block
 
