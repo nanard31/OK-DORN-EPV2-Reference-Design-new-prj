@@ -160,7 +160,9 @@ architecture Behavioral of TB_Event_processor is
 	signal delay_inter_ramp	:	delay_inter_ramp_array;	 
 		
 	type Gain_ramp_array	is array (0 to 7) of integer;	
-	signal Gain_ramp  :	Gain_ramp_array;
+	signal Gain_ramp  		:	Gain_ramp_array;
+	
+	constant Gain_ramp_cte :	Gain_ramp_array := (1000,2000,3000,4000,5000,6000,7000,8000); 
 	
 begin
 -------------------------------------------------------
@@ -483,7 +485,7 @@ label_generate : for i in 0 to 7 generate
 									count(i)	<=	0;
 									up(i)		<=	'1';
 									--Gain_ramp	<=	Gain_ramp+200;
-									Gain_ramp(i)	<=	1000*(i+1);
+									Gain_ramp(i)	<=	Gain_ramp_cte(i);
 									-- Gain_ramp(1)	<=	2000;
 									-- Gain_ramp(2)	<=	2000;
 									-- Gain_ramp(3)	<=	2000;

@@ -47,21 +47,21 @@ entity Sum is
 			
 		-- data science input
 		
-		-- Ready flag buffers
+		-- Ready flag input
 		i_Rdy					:	in std_logic_vector(0 to 7);
 		
-		-- DU_ADC Data
+		-- Data input
 		i_Din 					:	in 	Array_8x16_type;
 	
-		-- to another Sum block
+		-- output to another Sum block
 
-		o_out					:	out		std_logic_vector(15 downto 0);
+		o_out					:	out		Array_8x16_type;
 		o_rdy					:	out 	std_logic_vector(0 to 7);
-		o_id					:	out 	std_logic_vector(2 downto 0);
+
 		
-		--sum	
+		-- sum	
 		
-		o_sum						:	inout Array_8x31_type
+		o_sum					:	inout Array_8x31_type
 				
 		
 	);
@@ -163,9 +163,9 @@ begin
 
 		-- out science event
 
-		o_out		<= (others => '0');	
+		o_out		<= (others =>(others => '0'));	
 		o_rdy			<= (others => '0');	
-		o_id			<= (others => '0');	
+		
 		
 		doutb_array	<= (others =>(others => '0'));	
 		
@@ -234,8 +234,8 @@ begin
 						addrb	<=	unsigned(i_id)&ptr_rd;	-- set read	RAM add 
 						
 						-- out component
-						o_out	<=	doutb_array(To_integer(unsigned(i_id)));
-						o_id	<=	i_id;	
+						o_out	<=	doutb_array;
+							
 						o_rdy(To_integer(unsigned(i_id)))<=	'1';
 						
 						-- sum

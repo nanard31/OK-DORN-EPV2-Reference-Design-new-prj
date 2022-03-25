@@ -84,8 +84,8 @@ entity Event_Processor is
         o_Phase_enable       	 	: out std_logic;
         o_div_read            		: out std_logic;
 
-		EP_Capture_Filter_A_w	    : inout std_logic_vector(31 downto 0);
-	    EP_Capture_Filter_B_w	    : inout std_logic_vector(31 downto 0);		        
+		EP_Capture_Filter_A_w	    : inout Array_8x31_type;
+	    EP_Capture_Filter_B_w	    : inout Array_8x31_type;		        
         --------------------------------------------------------------------------------------------
         -- FROM UNIVERSAL GENERATOR SIGNALS
         --------------------------------------------------------------------------------------------
@@ -103,14 +103,34 @@ end Event_Processor;
 
 architecture Behavioral of Event_Processor is
      	
-	-------------------------------
-    -- Filters
-    -------------------------------
+		
+		-- to another Sum block
 
---	signal EP_Capture_Filter_A_w	: std_logic_vector(31 downto 0);
---	signal EP_Capture_Filter_B_w	: std_logic_vector(31 downto 0);	
+signal o_out_j					:	Array_8x16_type;
+signal o_rdy_j					:	std_logic_vector(0 to 7);
+
+		
+		--sum	
+		
+signal o_sum_j					:	Array_8x31_type;
+
+		-- to another Sum block
+
+signal o_out_i					:	Array_8x16_type;
+signal o_rdy_i					:	std_logic_vector(0 to 7);
+
+		
+		--sum	
+		
+signal o_sum_i					:	Array_8x31_type;
+
+
+		-- out A filter		
 	
 
+--signal EP_Capture_Filter_A_w		:	Array_8x31_type;	
+signal EP_Capture_Filter_A_w_ready	:	std_logic_vector(0 to 7);
+	
 	
 begin
 
@@ -152,11 +172,11 @@ begin
 		
 		
     -----------------------------------------------------------------
-    -- Filter_Front
+    -- SUM i
     -----------------------------------------------------------------
 
 
-    Inst_Sum : entity work.Sum
+    Inst_Sum_i : entity work.Sum
         port map(
 		
             i_Rst_n				=> i_Rst_n,
@@ -171,23 +191,87 @@ begin
 			-- data science input
 				
 			-- Ready flag buffers
-			i_Rdy			=>	i_DU_ADC_Ready_100_front,
+			i_Rdy				=>	i_DU_ADC_Ready_100_front,
 			
 			-- DU_ADC Data
-			i_Din 			=>	DU_ADC_Front_Dout,
+			i_Din 				=>	DU_ADC_Front_Dout,
 			
 			-- to another Sum block
 
-			o_out				=>	open,
-			o_rdy				=>	open,
-			o_id				=>	open,
+			o_out				=>	o_out_i,
+			o_rdy				=>	o_rdy_i,
+			
 			
 			--sum	
 		
-			o_sum				=>	open
+			o_sum				=>	o_sum_i
   
         );		
+		
+    -----------------------------------------------------------------
+    -- SUM j
+    -----------------------------------------------------------------
 
+
+    Inst_Sum_j : entity work.Sum
+        port map(
+		
+            i_Rst_n				=> i_Rst_n,
+            i_CLOCK_100_MHZ		=> i_Clk,
+			
+			-- Param
+
+			i_size				=>	to_unsigned(7-1,6),
+			
+
+		
+			-- data science input
+				
+			-- Ready flag buffers
+			i_Rdy				=>	o_rdy_i,
+			
+			-- DU_ADC Data
+			i_Din 				=>	o_out_i,
+			
+			-- to another Sum block
+
+			o_out				=>	o_out_j,
+			o_rdy				=>	o_rdy_j,
+			
+			--sum	
+		
+			o_sum				=>	o_sum_j
+  
+        );				
+
+		
+	Inst_Array_Substractor : entity work. Array_Substractor
+		port map(
+		
+			-- Reset and Clock
+			
+			i_Rst_n            		=> i_Rst_n,
+			i_CLOCK_100_MHZ     	=> i_Clk,
+					
+			-- data science input
+			
+			-- Ready flag input
+			i_Rdy_i					=>	o_rdy_i,	
+			i_Rdy_j					=>	o_Rdy_j,
+			
+			-- Data input
+			i_Din_i 				=> o_sum_i,
+			i_Din_j 				=> o_sum_j,
+		
+			-- output 
+
+			o_out					=> EP_Capture_Filter_A_w,
+			o_rdy					=> EP_Capture_Filter_A_w_ready
+					
+		);
+		
+		
+		
     -----------------------------------------------------------------
     -- Energy correction
     -----------------------------------------------------------------
@@ -200,12 +284,12 @@ begin
 	
 		-- input EP capture filter
 		
-		i_EP_Capture_Filter_A_w	=> EP_Capture_Filter_A_w,
-		i_EP_Capture_Filter_B_w	=> EP_Capture_Filter_B_w,
+		i_EP_Capture_Filter_A_w	=> x"00000000",--EP_Capture_Filter_A_w,--	energy correction input not array not yet
+		i_EP_Capture_Filter_B_w	=> x"00000000",--EP_Capture_Filter_B_w,--	energy correction input not array not yet
 		
 		--	Event_detect
-		o_Event_A  				=> o_Event_A,
-		o_Event_B  				=> o_Event_B,
+		o_Event_A  				=> o_Event_A,		
+		o_Event_B  				=> o_Event_B,	--	energy correction input not array not yet
 	
 		--	output result	
 		o_Event_Energy          => o_Event_Energy,
