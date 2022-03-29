@@ -28,7 +28,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use STD.textio.all;
 
-use work.DORN_Package.ALL;
+use work.DORN_EP_Package.ALL;
 
 --use work.EP_Package.ALL;
 --use work.FRONTPANEL.all;
@@ -46,22 +46,14 @@ entity Event_Processor is
         ------------------------------
 
         i_Clk                 		: in  std_logic; -- 100 MHz
-                 
-        -------------------------------
-        -- ADC
-        -------------------------------
-		
-		i_Din_RDY 					: in std_logic;
-		i_Din						: in std_logic_vector(15 downto 0);
-		
-		
+                 		
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
  
 		-- Ready flag buffers
-		i_DU_ADC_Ready_100_front	:	in std_logic_vector(0 to 7);
-		i_DU_ADC_Ready_100_back 	:	in std_logic_vector(0 to 7);
+		i_DU_ADC_Ready_100_front	:	in std_logic_vector(0 to pipeline_size-1);
+		i_DU_ADC_Ready_100_back 	:	in std_logic_vector(0 to pipeline_size-1);
 		
 		-- DU_ADC Data
 		DU_ADC_Front_Dout 		:	in Array_8x16_type;
@@ -107,7 +99,7 @@ architecture Behavioral of Event_Processor is
 		-- to another Sum block
 
 signal o_out_j					:	Array_8x16_type;
-signal o_rdy_j					:	std_logic_vector(0 to 7);
+signal o_rdy_j					:	std_logic_vector(0 to pipeline_size-1);
 
 		
 		--sum	
@@ -117,7 +109,7 @@ signal o_sum_j					:	Array_8x31_type;
 		-- to another Sum block
 
 signal o_out_i					:	Array_8x16_type;
-signal o_rdy_i					:	std_logic_vector(0 to 7);
+signal o_rdy_i					:	std_logic_vector(0 to pipeline_size-1);
 
 		
 		--sum	
@@ -129,7 +121,7 @@ signal o_sum_i					:	Array_8x31_type;
 	
 
 --signal EP_Capture_Filter_A_w		:	Array_8x31_type;	
-signal EP_Capture_Filter_A_w_ready	:	std_logic_vector(0 to 7);
+signal EP_Capture_Filter_A_w_ready	:	std_logic_vector(0 to pipeline_size-1);
 	
 	
 begin
@@ -276,33 +268,33 @@ begin
     -- Energy correction
     -----------------------------------------------------------------
 
-	Inst_Energy_correction : entity work.Energy_correction
-		port map(
-		-- Reset and Clock
-		i_Rst_n             	=> i_Rst_n,
-		i_CLOCK_100_MHZ     	=> i_Clk,
-	
-		-- input EP capture filter
-		
-		i_EP_Capture_Filter_A_w	=> x"00000000",--EP_Capture_Filter_A_w,--	energy correction input not array not yet
-		i_EP_Capture_Filter_B_w	=> x"00000000",--EP_Capture_Filter_B_w,--	energy correction input not array not yet
-		
-		--	Event_detect
-		o_Event_A  				=> o_Event_A,		
-		o_Event_B  				=> o_Event_B,	--	energy correction input not array not yet
-	
-		--	output result	
-		o_Event_Energy          => o_Event_Energy,
-		o_A_B          			=> o_A_B,
-
-		-- out
-		o_Energy_corrected_edge	=> o_Energy_corrected_edge,
-		o_Energy_corrected		=> o_Energy_corrected,
-		
-	    o_Phase_enable       	=> o_Phase_enable,	-- digital pulse energy correction is applied
-        o_div_read           	=> o_div_read,		-- means result has been read	
-		buffer_B_A_division_start=> buffer_B_A_division_start 		
-  
-		);
+--	Inst_Energy_correction : entity work.Energy_correction
+--		port map(
+--		-- Reset and Clock
+--		i_Rst_n             	=> i_Rst_n,
+--		i_CLOCK_100_MHZ     	=> i_Clk,
+--	
+--		-- input EP capture filter
+--		
+--		i_EP_Capture_Filter_A_w	=> x"00000000",--EP_Capture_Filter_A_w,--	energy correction input not array not yet
+--		i_EP_Capture_Filter_B_w	=> x"00000000",--EP_Capture_Filter_B_w,--	energy correction input not array not yet
+--		
+--		--	Event_detect
+--		o_Event_A  				=> o_Event_A,		
+--		o_Event_B  				=> o_Event_B,	--	energy correction input not array not yet
+--	
+--		--	output result	
+--		o_Event_Energy          => o_Event_Energy,
+--		o_A_B          			=> o_A_B,
+--
+--		-- out
+--		o_Energy_corrected_edge	=> o_Energy_corrected_edge,
+--		o_Energy_corrected		=> o_Energy_corrected,
+--		
+--	    o_Phase_enable       	=> o_Phase_enable,	-- digital pulse energy correction is applied
+--        o_div_read           	=> o_div_read,		-- means result has been read	
+--		buffer_B_A_division_start=> buffer_B_A_division_start 		
+--  
+--		);
 	
 end architecture Behavioral;

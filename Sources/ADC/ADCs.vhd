@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.DORN_Package.ALL;
+use work.DORN_EP_Package.ALL;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -23,8 +23,8 @@ entity ADCs is
         --------------------------------------------------------------------------------------------
  		
 		-- Ready flag buffers
-		DU_ADC_Ready_100_front 	: out std_logic_vector(0 to 7);
-		DU_ADC_Ready_100_back  	: out std_logic_vector(0 to 7);
+		DU_ADC_Ready_100_front 	: out std_logic_vector(0 to pipeline_size-1);
+		DU_ADC_Ready_100_back  	: out std_logic_vector(0 to pipeline_size-1);
 		
 		-- DU_ADC Data
 		DU_ADC_Front_Dout 		: out Array_8x16_type;
@@ -34,10 +34,10 @@ entity ADCs is
         --------------------------------------------------------------------------------------------
         -- ADC SPI
         --------------------------------------------------------------------------------------------
-		o_ADC_SCK     	: out std_logic_vector(0 to 7);             -- SPI Serial Clock
-        o_ADC_CNV_n   	: out std_logic_vector(0 to 7);             -- SPI Convert Input, negative polarity
-        i_ADC_SDO_front	: in  std_logic_vector(0 to 7);              -- SPI Slave Data Output (MISO)
-		i_ADC_SDO_back	: in  std_logic_vector(0 to 7)              -- SPI Slave Data Output (MISO)
+		o_ADC_SCK     	: out std_logic_vector(0 to pipeline_size-1);             -- SPI Serial Clock
+        o_ADC_CNV_n   	: out std_logic_vector(0 to pipeline_size-1);             -- SPI Convert Input, negative polarity
+        i_ADC_SDO_front	: in  std_logic_vector(0 to pipeline_size-1);              -- SPI Slave Data Output (MISO)
+		i_ADC_SDO_back	: in  std_logic_vector(0 to pipeline_size-1)              -- SPI Slave Data Output (MISO)
 		
 		         
     );
@@ -51,7 +51,7 @@ signal DU_ADC_Pulse_En : std_logic;
 
 begin
 
-    gen_ADCLTC2311_Driver_Parallel : for i in 0 to 7 generate
+    gen_ADCLTC2311_Driver_Parallel : for i in 0 to pipeline_size-1 generate
         inst_ADCLTC2311_Driver_Front : entity work.ADCLTC2311_Driver
             generic map(
                 g_INITIAL_DELAY => to_unsigned(2 * i, 4) -- 2 clock ticks delay between ADC

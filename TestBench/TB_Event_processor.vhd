@@ -25,7 +25,7 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.math_real.all;
 use STD.textio.all;
 
-use work.DORN_Package.ALL;
+use work.DORN_EP_Package.ALL;
 --library NX;
 --use NX.nxPackage.all;
 
@@ -132,37 +132,39 @@ architecture Behavioral of TB_Event_processor is
     --    signal FE_P7V_On_Off : std_logic;
     --    signal FE_M7V_On_Off : std_logic;
 
-    signal DU_ADC_CNV_n     : std_logic_vector(0 to 7);
-    signal DU_ADC_SCK       : std_logic_vector(0 to 7);
-    signal DU_Front_ADC_SDO : std_logic_vector(0 to 7);
-    signal DU_Back_ADC_SDO  : std_logic_vector(0 to 7);
+    signal DU_ADC_CNV_n     : std_logic_vector(0 to pipeline_size-1);
+    signal DU_ADC_SCK       : std_logic_vector(0 to pipeline_size-1);
+    signal DU_Front_ADC_SDO : std_logic_vector(0 to pipeline_size-1);
+    signal DU_Back_ADC_SDO  : std_logic_vector(0 to pipeline_size-1);
 
-    signal DU_ADC_CNV_n_Delayed     : std_logic_vector(0 to 7);
-    signal DU_ADC_SCK_Delayed       : std_logic_vector(0 to 7);
-    signal DU_Front_ADC_SDO_Delayed : std_logic_vector(0 to 7);
-    signal DU_Back_ADC_SDO_Delayed  : std_logic_vector(0 to 7);
+    signal DU_ADC_CNV_n_Delayed     : std_logic_vector(0 to pipeline_size-1);
+    signal DU_ADC_SCK_Delayed       : std_logic_vector(0 to pipeline_size-1);
+    signal DU_Front_ADC_SDO_Delayed : std_logic_vector(0 to pipeline_size-1);
+    signal DU_Back_ADC_SDO_Delayed  : std_logic_vector(0 to pipeline_size-1);
 
-	signal FIFO_OUT_rd_en : std_logic_vector(0 to 7);
+	signal FIFO_OUT_rd_en : std_logic_vector(0 to pipeline_size-1);
 	
-	type Array_8x31_type is array (0 to 7) of std_logic_vector(31 downto 0); -- Array 8 x 16
+	type Array_8x31_type is array (0 to pipeline_size-1) of std_logic_vector(31 downto 0); -- Array 8 x 16
     signal FIFO_OUT_dout  : Array_8x31_type;
 
 	
 	-- ramp generation synchronous on o_Dout_rdy_r
-	type count_array is array (0 to 7) of integer range 0 to 15; 
+	type count_array is array (0 to pipeline_size-1) of integer range 0 to 15; 
 	signal count			:	count_array; 
 	signal count_ampli  	:	integer range 0 to 15; 
 	signal unsigned_count	:	unsigned(15 downto 0);
 	signal unsigned_count_gain	:	unsigned(15 downto 0);
-	type up_array is array (0 to 7) of std_logic;	
+	type up_array is array (0 to pipeline_size-1) of std_logic;	
 	signal up				:	up_array;
-	type delay_inter_ramp_array is array (0 to 7) of integer range 0 to 1000;
+	type delay_inter_ramp_array is array (0 to pipeline_size-1) of integer range 0 to 1000;
 	signal delay_inter_ramp	:	delay_inter_ramp_array;	 
 		
-	type Gain_ramp_array	is array (0 to 7) of integer;	
+	type Gain_ramp_array	is array (0 to pipeline_size-1) of integer;	
 	signal Gain_ramp  		:	Gain_ramp_array;
-	
-	constant Gain_ramp_cte :	Gain_ramp_array := (1000,2000,3000,4000,5000,6000,7000,8000); 
+
+
+	constant Gain_ramp_cte :	Gain_ramp_array := (1,2,3,4,5,6,7,8); 
+
 	
 begin
 -------------------------------------------------------
@@ -458,7 +460,7 @@ TB_CLOCK_200MHZ_process : process
 		-- --ramp generation synchronous on o_Dout_rdy_r
 		-- --------------------------------------------------------------------------------------
 
-label_generate : for i in 0 to 7 generate				
+label_generate : for i in 0 to pipeline_size-1 generate				
 	ramp_generation_synchronous : process
 		begin
 			count(i)	<=	0;
@@ -525,7 +527,7 @@ end generate label_generate;
     DU_Front_ADC_SDO_Delayed <= transport DU_Front_ADC_SDO after C_Output_DelayLine;
     DU_Back_ADC_SDO_Delayed  <= transport DU_Back_ADC_SDO after C_Output_DelayLine;
 
-    gen_ADCLTC2311_Emulators_Parallel : for i in 0 to 7 generate
+    gen_ADCLTC2311_Emulators_Parallel : for i in 0 to pipeline_size-1 generate
         inst_ADCLTC2311_Emulators : entity work.ADCLTC2311_Emulators
             port map(
                 i_Rst_n         => TB_Reset_n,

@@ -26,7 +26,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
-use work.DORN_Package.ALL;
+use work.DORN_EP_Package.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -44,8 +44,8 @@ entity Array_Substractor is
 		-- data science input
 		
 		-- Ready flag input
-		i_Rdy_i					:	in	std_logic_vector(0 to 7);
-		i_Rdy_j					:	in	std_logic_vector(0 to 7);
+		i_Rdy_i					:	in	std_logic_vector(0 to pipeline_size-1);
+		i_Rdy_j					:	in	std_logic_vector(0 to pipeline_size-1);
 		
 		-- Data input
 		i_Din_i 				:	in 	Array_8x31_type;
@@ -54,7 +54,7 @@ entity Array_Substractor is
 		-- output 
 
 		o_out					:	out	Array_8x31_type;
-		o_rdy					:	out	std_logic_vector(0 to 7)
+		o_rdy					:	out	std_logic_vector(0 to pipeline_size-1)
 					
 	);
 end Array_Substractor;
@@ -70,7 +70,7 @@ begin
 	-----------------------------------------
 	-- Process: comput substractor
 	-----------------------------------------
-	sub_i: for i in 0 to 7 generate
+	sub_i: for i in 0 to pipeline_size-1 generate
 		process(i_Rst_n, i_CLOCK_100_MHZ)
 		begin
 

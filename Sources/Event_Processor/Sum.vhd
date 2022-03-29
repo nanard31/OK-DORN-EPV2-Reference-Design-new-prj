@@ -26,7 +26,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
-use work.DORN_Package.ALL;
+use work.DORN_EP_Package.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -48,7 +48,7 @@ entity Sum is
 		-- data science input
 		
 		-- Ready flag input
-		i_Rdy					:	in std_logic_vector(0 to 7);
+		i_Rdy					:	in std_logic_vector(0 to pipeline_size-1);
 		
 		-- Data input
 		i_Din 					:	in 	Array_8x16_type;
@@ -56,7 +56,7 @@ entity Sum is
 		-- output to another Sum block
 
 		o_out					:	out		Array_8x16_type;
-		o_rdy					:	out 	std_logic_vector(0 to 7);
+		o_rdy					:	out 	std_logic_vector(0 to pipeline_size-1);
 
 		
 		-- sum	
@@ -75,11 +75,11 @@ architecture Behavioral of Sum is
 	
 	--	RAM0B coef 
 	signal wea		: std_logic_vector(0 downto 0);
-	signal addra	: unsigned(8 downto 0);
+	
 	signal dina		: unsigned(15 downto 0);
 	signal douta	: std_logic_vector(15 downto 0);
 	
-	signal addrb	: unsigned(8 downto 0);
+	
 	signal dinb		: unsigned(15 downto 0);
 	signal doutb	: std_logic_vector(15 downto 0);
 
@@ -92,16 +92,31 @@ architecture Behavioral of Sum is
 	signal view_i_Din	: signed(15 downto 0);
 	signal view_doutb	: signed(15 downto 0);
 
-	signal save_i_id	: std_logic_vector(2 downto 0);
+	
 
 	signal doutb_array	:	Array_8x16_type;
 	
 	-- Ready flag buffers
-	signal Rdy_concat   : std_logic_vector(7 downto 0);
-	signal DU_ADC_Ready_100_back_concat	: std_logic_vector(7 downto 0);
+	signal Rdy_concat   : std_logic_vector(pipeline_size-1 downto 0);
+	signal DU_ADC_Ready_100_back_concat	: std_logic_vector(pipeline_size-1 downto 0);
 	
+
 	 -- id
 	signal	i_id		: std_logic_vector(2 downto 0);
+	signal save_i_id	: std_logic_vector(2 downto 0);
+	signal addra	: unsigned(8 downto 0);
+	signal addrb	: unsigned(8 downto 0);
+	
+	
+	-- -- id
+	-- signal	i_id		: std_logic_vector(1 downto 0);
+	-- signal save_i_id	: std_logic_vector(1 downto 0);
+	-- signal addra	: unsigned(7 downto 0);
+	-- signal addrb	: unsigned(7 downto 0);
+
+
+
+
 	
 begin
   
@@ -196,7 +211,7 @@ begin
 					
 					when load_ram_manage_ptr =>
 					
-						if 	unsigned(save_i_id) = 7 and ptr_wr < i_size then 	-- set deep A0......A7
+						if 	unsigned(save_i_id) = pipeline_size-1 and ptr_wr < i_size then 	-- set deep A0......A7
 						
 						-- case increment pointer and continous RAM  loading
 						ptr_wr	<= ptr_wr + 1;
@@ -224,7 +239,7 @@ begin
 						
 						save_i_id <= i_id; 
 						
-						doutb_array(To_integer(unsigned(i_id)+7))	<=	doutb;
+						doutb_array(To_integer(unsigned(i_id)+pipeline_size-1))	<=	doutb;
 						
 						-- write data RAM
 						wea		<= "1";
@@ -241,11 +256,11 @@ begin
 						-- sum
 						o_sum(To_integer(unsigned(i_id)))	<=	o_sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id)))) - signed(doutb_array(To_integer(unsigned(i_id))));  
 							
-						-----------------debug-----------------------------------------------------------------
-						view_sum 	<= o_sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
-						view_i_Din	<= signed(i_Din(To_integer(unsigned(i_id))));
-						view_doutb	<= signed(doutb_array(To_integer(unsigned(i_id))));
-						-------------------------------------------------------------------------------------
+						-- -----------------debug-----------------------------------------------------------------
+						-- view_sum 	<= o_sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
+						-- view_i_Din	<= signed(i_Din(To_integer(unsigned(i_id))));
+						-- view_doutb	<= signed(doutb_array(To_integer(unsigned(i_id))));
+						-- -------------------------------------------------------------------------------------
 						
 							--if 	unsigned(i_id) = 3 then			-- set deep A0......A7
 							
@@ -258,7 +273,7 @@ begin
 					when manage_ptr =>
 					
 						-- treat pointer sum i 
-						if 	unsigned(save_i_id) = 3 then	
+						if 	unsigned(save_i_id) = pipeline_size-1 then	
 							if 	ptr_rd < i_size and ptr_wr < i_size   then -- case of increment all pointer
 							
 							ptr_wr	<= ptr_wr + 1;	
@@ -295,8 +310,9 @@ begin
 --------------------
 --	decode id from Rdy
 --------------------	
+
+all_instrument: if pipeline_size=8 generate
 Rdy_concat <= (i_Rdy(7)&i_Rdy(6)&i_Rdy(5)&i_Rdy(4))&(i_Rdy(3)&i_Rdy(2)&i_Rdy(1)&i_Rdy(0)); 	
-										
 i_id		<=	"000" when	Rdy_concat = "00000001" else
 				"001" when	Rdy_concat = "00000010" else
 				"010" when	Rdy_concat = "00000100" else
@@ -306,8 +322,17 @@ i_id		<=	"000" when	Rdy_concat = "00000001" else
 				"110" when	Rdy_concat = "01000000" else
 				"111" when	Rdy_concat = "10000000" else
 				"000";			
-
+end generate all_instrument;
 	
+dispatch: if pipeline_size=4 generate	
+Rdy_concat <= i_Rdy(3)&i_Rdy(2)&i_Rdy(1)&i_Rdy(0);				
+				
+i_id		<=	"00" when	Rdy_concat = "0001" else
+				"01" when	Rdy_concat = "0010" else
+				"10" when	Rdy_concat = "0100" else
+				"11" when	Rdy_concat = "1000" else
+				"00";
+end generate dispatch;				
 	
 end;
 
