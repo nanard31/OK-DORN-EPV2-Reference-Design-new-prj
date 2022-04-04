@@ -325,7 +325,7 @@ begin
 		
 		-- DU_ADC Data
 		DU_ADC_Front_Dout			=> DU_ADC_Front_Dout,
-		DU_ADC_Back_Dout	 		=> DU_ADC_Back_Dout,
+		DU_ADC_Back_Dout	 		=> DU_ADC_Back_Dout
 		
         --	o_EP_Division_Done    : out std_logic;
         
@@ -334,24 +334,24 @@ begin
 		-- o_Event_B						=> o_Event_B,			--std_logic_vector(31 downto 0);
 		-- o_Event_A						=> o_Event_A,			--std_logic_vector(31 downto 0);
 		
-		o_Event_Energy 				=> o_Event_Energy,			--std_logic_vector(77 downto 0);
-		o_A_B         				=> A_B,						--signed(63 downto 0);
+		-- o_Event_Energy 				=> o_Event_Energy,			--std_logic_vector(77 downto 0);
+		-- o_A_B         				=> A_B,						--signed(63 downto 0);
 		
-		o_Energy_corrected_edge		=> o_Energy_corrected_edge,	--std_logic;
-		o_Energy_corrected			=> o_Energy_corrected,		--std_logic;			
+		-- o_Energy_corrected_edge		=> o_Energy_corrected_edge,	--std_logic;
+		-- o_Energy_corrected			=> o_Energy_corrected,		--std_logic;			
 		
  
-        o_Phase_enable       	 	=> o_Phase_enable,			--std_logic;
-        o_div_read            		=> o_div_read,				--std_logic;
+        -- o_Phase_enable       	 	=> o_Phase_enable,			--std_logic;
+        -- o_div_read            		=> o_div_read,				--std_logic;
 		        
-	    EP_Capture_Filter_A_w	    =>   open,	--std_logic_vector(31 downto 0);
-	    EP_Capture_Filter_B_w	    =>   open, 	--std_logic_vector(31 downto 0);      
-        -- FROM UNIVERSAL GENERATOR SIGNALS
+	    -- EP_Capture_Filter_A_w	    =>   open,	--std_logic_vector(31 downto 0);
+	    -- EP_Capture_Filter_B_w	    =>   open, 	--std_logic_vector(31 downto 0);      
+        -- -- FROM UNIVERSAL GENERATOR SIGNALS
 		
-        i_Data_in					=> i_Data_in, 
-        i_Address					=> i_Address,
-        i_Write  					=> i_Write,
-		buffer_B_A_division_start	=> buffer_B_A_division_start	
+        -- i_Data_in					=> i_Data_in, 
+        -- i_Address					=> i_Address,
+        -- i_Write  					=> i_Write,
+		-- buffer_B_A_division_start	=> buffer_B_A_division_start	
 
         );
 	

@@ -42,11 +42,11 @@ entity Array_Substractor is
 		i_CLOCK_100_MHZ     	:	in 	std_logic;
 				
 		-- data science input
-		
-		-- Ready flag input
-		i_Rdy_i					:	in	std_logic_vector(0 to pipeline_size-1);
-		i_Rdy_j					:	in	std_logic_vector(0 to pipeline_size-1);
-		
+        
+        -- Ready flag input
+ 
+        i_Rdy_j                 :   in  std_logic_vector(0 to pipeline_size-1);
+        				
 		-- Data input
 		i_Din_i 				:	in 	Array_8x31_type;
 		i_Din_j 				:	in 	Array_8x31_type;
@@ -61,7 +61,7 @@ end Array_Substractor;
 
 architecture Behavioral of Array_Substractor is
 	
-signal i 				: integer;	
+	
 signal i_Din_i_delayed	: Array_8x31_type;
 
 	
@@ -82,7 +82,7 @@ begin
 				if rising_edge(i_CLOCK_100_MHZ) then
 				
 				i_Din_i_delayed(i)	<=	i_Din_i(i);
-				o_out(i) <= i_Din_i_delayed(i) - i_Din_j(i);
+				o_out(i)            <=  i_Din_i_delayed(i) - i_Din_j(i);
 				o_rdy(i)			<=	i_Rdy_j(i);
 				
 				end if;

@@ -77,29 +77,22 @@ architecture Behavioral of Sum is
 	signal wea		: std_logic_vector(0 downto 0);
 	
 	signal dina		: unsigned(15 downto 0);
-	signal douta	: std_logic_vector(15 downto 0);
-	
-	
-	signal dinb		: unsigned(15 downto 0);
+
 	signal doutb	: std_logic_vector(15 downto 0);
 
 	--pointer
 	signal ptr_wr	: unsigned(5 downto 0);	
 	signal ptr_rd	: unsigned(5 downto 0);
 	
-	--debug
-	signal view_sum		: signed(31 downto 0);
-	signal view_i_Din	: signed(15 downto 0);
-	signal view_doutb	: signed(15 downto 0);
-
-	
+--	--debug
+--	signal view_sum		: signed(31 downto 0);
+--	signal view_i_Din	: signed(15 downto 0);
+--	signal view_doutb	: signed(15 downto 0);
 
 	signal doutb_array	:	Array_8x16_type;
 	
 	-- Ready flag buffers
 	signal Rdy_concat   : std_logic_vector(pipeline_size-1 downto 0);
-	signal DU_ADC_Ready_100_back_concat	: std_logic_vector(pipeline_size-1 downto 0);
-	
 
 	 -- id
 	signal	i_id		: std_logic_vector(2 downto 0);
@@ -155,10 +148,10 @@ begin
 		wea		<= (others => '0');
 		addra	<= (others => '0');
 		dina	<= (others => '0');
-		douta	<= (others => '0');
+
 		
 		addrb	<= (others => '0');
-		dinb	<= (others => '0');
+
 		
 		
 		--pointer
@@ -170,11 +163,11 @@ begin
 		o_sum		<= (others =>(others => '0'));	
 
 
-		-----------------debug
-		view_sum 	<= (others => '0');	
-		view_i_Din		<= (others => '0');	
-		view_doutb	<= (others => '0');	
-		-------------------------------------------------------------------------------------
+--		-----------------debug
+--		view_sum 	<= (others => '0');	
+--		view_i_Din		<= (others => '0');	
+--		view_doutb	<= (others => '0');	
+--		-------------------------------------------------------------------------------------
 
 		-- out science event
 
@@ -325,8 +318,7 @@ i_id		<=	"000" when	Rdy_concat = "00000001" else
 end generate all_instrument;
 	
 dispatch: if pipeline_size=4 generate	
-Rdy_concat <= i_Rdy(3)&i_Rdy(2)&i_Rdy(1)&i_Rdy(0);				
-				
+Rdy_concat <= i_Rdy(3)&i_Rdy(2)&i_Rdy(1)&i_Rdy(0);						
 i_id		<=	"00" when	Rdy_concat = "0001" else
 				"01" when	Rdy_concat = "0010" else
 				"10" when	Rdy_concat = "0100" else

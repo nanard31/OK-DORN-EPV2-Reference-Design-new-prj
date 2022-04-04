@@ -63,7 +63,7 @@ begin
                 SPI_Bit_Number_cnt <= SPI_Bit_Number_cnt - "1";
 
                 o_Front_ADC_SDO <= i_FIFO_dout(to_integer(SPI_Bit_Number_cnt)); -- Send bits #15-0
-                o_Back_ADC_SDO  <= i_FIFO_dout(to_integer(SPI_Bit_Number_cnt) + 16); -- Send bits #31-16
+                o_Back_ADC_SDO  <= i_FIFO_dout(to_integer(SPI_Bit_Number_cnt)); -- Send bits #31-16
             end loop;
         end loop;
     end process p_ADC_SPI_Protocol;
