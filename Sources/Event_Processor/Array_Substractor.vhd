@@ -18,7 +18,6 @@
 -- 
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -34,63 +33,58 @@ use work.DORN_EP_Package.ALL;
 --use UNISIM.VComponents.all;
 
 entity Array_Substractor is
-		port(
-		
-		-- Reset and Clock
-		
-		i_Rst_n            		:	in 	std_logic;
-		i_CLOCK_100_MHZ     	:	in 	std_logic;
-				
-		-- data science input
-        
-        -- Ready flag input
- 
-        i_Rdy_j                 :   in  std_logic_vector(0 to pipeline_size-1);
-        				
-		-- Data input
-		i_Din_i 				:	in 	Array_8x31_type;
-		i_Din_j 				:	in 	Array_8x31_type;
-	
-		-- output 
+    port(
+        -- Reset and Clock
 
-		o_out					:	out	Array_8x31_type;
-		o_rdy					:	out	std_logic_vector(0 to pipeline_size-1)
-					
-	);
+        i_Rst_n         : in  std_logic;
+        i_CLOCK_100_MHZ : in  std_logic;
+        -- data science input
+
+        -- Ready flag input
+
+        i_Rdy_j         : in  std_logic_vector(0 to pipeline_size - 1);
+        -- Data input
+        i_Din_i         : in  signed(31 downto 0);
+        i_Din_j         : in  signed(31 downto 0);
+        i_id_i          : in  std_logic_vector(2 downto 0);
+        i_id_j          : in  std_logic_vector(2 downto 0);
+        -- output 
+
+        o_out           : out signed(31 downto 0);
+        o_rdy           : out std_logic_vector(0 to pipeline_size - 1);
+        o_id            : out std_logic_vector(2 downto 0)
+    );
 end Array_Substractor;
 
 architecture Behavioral of Array_Substractor is
-	
-	
-signal i_Din_i_delayed	: Array_8x31_type;
 
-	
+    signal i_Din_i_delayed : Array_8x31_type;
+
 begin
-    
-	-----------------------------------------
-	-- Process: comput substractor
-	-----------------------------------------
-	sub_i: for i in 0 to pipeline_size-1 generate
-		process(i_Rst_n, i_CLOCK_100_MHZ)
-		begin
 
-			if i_Rst_n = '0' then
-			o_out(i)			<=	(others => '0');	
-			i_Din_i_delayed(i)	<=	(others => '0');
-			o_rdy(i)			<=	'0';	
-			else
-				if rising_edge(i_CLOCK_100_MHZ) then
-				
-				i_Din_i_delayed(i)	<=	i_Din_i(i);
-				o_out(i)            <=  i_Din_i_delayed(i) - i_Din_j(i);
-				o_rdy(i)			<=	i_Rdy_j(i);
-				
-				end if;
-			
-			end if;	
-			
-		end process;
-	end generate;  	
-	
+    -----------------------------------------
+    -- Process: comput substractor
+    -----------------------------------------
+
+    process(i_Rst_n, i_CLOCK_100_MHZ)
+    begin
+        if i_Rst_n = '0' then
+            o_out <= (others => '0');
+            o_rdy <= (others => '0');
+            o_id  <= (others => '0');
+        else
+            if rising_edge(i_CLOCK_100_MHZ) then
+                
+                o_rdy <= i_Rdy_j;
+                o_id  <= i_id_j;
+                
+                if i_Rdy_j(To_integer(unsigned(i_id_i))) = '1' and i_Rdy_j(To_integer(unsigned(i_id_j))) = '1' then
+                    o_out <= i_Din_i - i_Din_j;
+                end if;
+
+            end if;
+        end if;
+    end process;
+
 end;
 

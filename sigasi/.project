@@ -32,6 +32,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/DORN_EP_Package.vhd</locationURI>
 		</link>
 		<link>
+			<name>EP_in_mux.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_in_mux.vhd</locationURI>
+		</link>
+		<link>
 			<name>Event_Processor.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Event_Processor.vhd</locationURI>
