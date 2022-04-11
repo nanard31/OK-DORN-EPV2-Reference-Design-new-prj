@@ -90,9 +90,9 @@ end Event_Processor;
 
 architecture Behavioral of Event_Processor is
 
-    signal o_Rdy_front,o_Rdy_back : std_logic_vector(0 to pipeline_size - 1);
-    signal o_Din_front,o_Din_back  : std_logic_vector(15 downto 0);
-    signal o_id_front,o_id_back   : std_logic_vector(2 downto 0);
+    signal o_Rdy_front, o_Rdy_back : std_logic_vector(0 to pipeline_size - 1);
+    signal o_Din_front, o_Din_back : std_logic_vector(15 downto 0);
+    signal o_id_front, o_id_back   : std_logic_vector(2 downto 0);
 
 begin
 

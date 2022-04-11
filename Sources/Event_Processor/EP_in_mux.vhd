@@ -80,7 +80,7 @@ begin
                     o_id  <= id;
                 else
                     o_Rdy <= (others => '0');
-                    o_Din <= (others => '0');
+                    --o_Din <= (others => '0');
                 end if;
 
             end if;

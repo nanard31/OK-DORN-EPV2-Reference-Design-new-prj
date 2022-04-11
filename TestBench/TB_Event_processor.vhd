@@ -163,7 +163,7 @@ architecture Behavioral of TB_Event_processor is
 	signal Gain_ramp  		:	Gain_ramp_array;
 
 
-	constant Gain_ramp_cte :	Gain_ramp_array := (1,0,0,0,0,0,0,0); 
+	constant Gain_ramp_cte :	Gain_ramp_array := (1,1,1,1,1,1,1,1); 
 
 	
 begin

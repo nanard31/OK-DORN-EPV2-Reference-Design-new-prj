@@ -50,14 +50,14 @@ entity Sum is
         i_Din           : in    std_logic_vector(15 downto 0);
         -- output to another Sum block
 
-        o_out_array     : out   Array_8x16_type; --debug
+        --o_out_array     : out   Array_8x16_type; --debug
 
         o_rdy           : out   std_logic_vector(0 to pipeline_size - 1);
         o_id            : out   std_logic_vector(2 downto 0);
         o_out           : out   std_logic_vector(15 downto 0);
         -- sum	
 
-        o_sum_array     : inout Array_8x31_type; --debug
+        --o_sum_array     : inout Array_8x31_type; --debug
         o_sum           : out   signed(31 downto 0)
     );
 end Sum;
@@ -100,6 +100,9 @@ architecture Behavioral of Sum is
     -- signal save_i_id	: std_logic_vector(1 downto 0);
     -- signal addra	: unsigned(7 downto 0);
     -- signal addrb	: unsigned(7 downto 0);
+
+--    signal o_out_array  : Array_8x16_type; --debug
+    signal o_sum_array  : Array_8x31_type; --debug
 
 begin
 
@@ -154,7 +157,7 @@ begin
 
             -- out science event
 
-            o_out_array <= (others => (others => '0'));
+            --o_out_array <= (others => (others => '0'));
             o_rdy       <= (others => '0');
 
             doutb_array <= (others => (others => '0'));
@@ -229,17 +232,17 @@ begin
                             addrb <= unsigned(i_id) & ptr_rd; -- set read	RAM add 
 
                             --debug
-                            o_out_array <= doutb_array;
+                            --o_out_array <= doutb_array;
                             -- out component
                             o_out       <= doutb_array(To_integer(unsigned(i_id)));
+                            o_sum       <= o_sum_array(To_integer(unsigned(i_id)));
 
                             o_rdy(To_integer(unsigned(i_id))) <= '1';
 
-                            
                             -- debug
                             o_sum_array(To_integer(unsigned(i_id))) <= o_sum_array(To_integer(unsigned(i_id))) + signed(i_Din) - signed(doutb_array(To_integer(unsigned(i_id))));
                             -- out sum
-                            o_sum                                   <= o_sum_array(To_integer(unsigned(i_id))) + signed(i_Din) - signed(doutb_array(To_integer(unsigned(i_id))));
+
                             -- -----------------debug-----------------------------------------------------------------
                             -- view_sum 	<= o_sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
                             -- view_i_Din	<= signed(i_Din(To_integer(unsigned(i_id))));

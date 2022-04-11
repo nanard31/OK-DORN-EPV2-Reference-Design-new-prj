@@ -80,8 +80,7 @@ architecture Behavioral of Filter is
     signal o_out_i : std_logic_vector(15 downto 0);
     signal o_id_i  : std_logic_vector(2 downto 0);
 
-    signal o_id_j  : std_logic_vector(2 downto 0);
-
+    signal o_id_j : std_logic_vector(2 downto 0);
 
     -- out A filter		
 
@@ -107,12 +106,12 @@ begin
             i_Din           => i_Din,
             -- to another Sum block
 
-            o_out_array     => open,    --debug
+            --o_out_array     => open,    --debug
             o_rdy           => o_rdy_i,
             o_id            => o_id_i,
             o_out           => o_out_i,
             --sum	
-            o_sum_array     => open,    --debug
+            --o_sum_array     => open,    --debug
             o_sum           => o_sum_i
         );
 
@@ -136,12 +135,12 @@ begin
             i_Din           => o_out_i,
             -- to another Sum block
 
-            o_out_array     => open,    --debug
+            --o_out_array     => open,    --debug
             o_rdy           => o_rdy_j,
             o_id            => o_id_j,
             o_out           => open,
             --sum   
-            o_sum_array     => open,    --debug
+            --o_sum_array     => open,    --debug
             o_sum           => o_sum_j
         );
 

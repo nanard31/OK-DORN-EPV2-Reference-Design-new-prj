@@ -74,10 +74,10 @@ begin
             o_id  <= (others => '0');
         else
             if rising_edge(i_CLOCK_100_MHZ) then
-                
+
                 o_rdy <= i_Rdy_j;
                 o_id  <= i_id_j;
-                
+
                 if i_Rdy_j(To_integer(unsigned(i_id_i))) = '1' and i_Rdy_j(To_integer(unsigned(i_id_j))) = '1' then
                     o_out <= i_Din_i - i_Din_j;
                 end if;
