@@ -47,7 +47,7 @@ end Universal_signal_generator;
 
 architecture Behavioral of Universal_signal_generator is
 
-constant enable_simulation : std_logic := '1';
+constant enable_simulation : std_logic := '0';
 
 -- ramp generation synchronous on o_Dout_rdy_r
 signal count			:	integer range 0 to 15; 

@@ -46,7 +46,7 @@ entity EP_in_mux is
         i_Din           : in    Array_8x16_type;
         o_Rdy           : out   std_logic_vector(0 to pipeline_size - 1);
         o_Din           : out   std_logic_vector(15 downto 0);
-        o_id            : inout std_logic_vector(2 downto 0)
+        o_id            : inout std_logic_vector(id_size downto 0)
     );
 end EP_in_mux;
 
@@ -56,7 +56,7 @@ architecture Behavioral of EP_in_mux is
     signal Rdy_concat : std_logic_vector(pipeline_size - 1 downto 0);
 
     -- id
-    signal id : std_logic_vector(2 downto 0);
+    signal id : std_logic_vector(id_size downto 0);
 
 begin
 
@@ -110,6 +110,12 @@ begin
                       "11" when Rdy_concat = "1000" else
                       "00";
     end generate dispatch;
+    
+    one : if pipeline_size = 1 generate
+
+        id         <= "0";
+                     
+    end generate one;    
 
 end;
 

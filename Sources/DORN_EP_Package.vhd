@@ -9,7 +9,12 @@ package DORN_EP_Package is
     -- Event Processor
     ----------------------------------------------------------------------------------
 
-    constant pipeline_size : integer := 8;
+    constant pipeline_size : integer := 1;
+    constant id_size       : integer := 0; 
+    
+    
+--    constant pipeline_size : integer := 8;
+--    constant id_size       : integer := 2; 
 
     type Array_8x6_type is array (0 to pipeline_size - 1) of std_logic_vector(5 downto 0); -- Array 8 x 6
     type Array_8x16_type is array (0 to pipeline_size - 1) of std_logic_vector(15 downto 0); -- Array 8 x 16

@@ -38,51 +38,37 @@ use work.DORN_EP_Package.ALL;
 
 entity Event_Processor is
     port(
-        i_Rst_n                  : in std_logic;
+        i_Rst_n                   : in    std_logic;
         -------------------------------
         -- CLOCK
         ------------------------------
 
-        i_Clk                    : in std_logic; -- 100 MHz
+        i_Clk                     : in    std_logic; -- 100 MHz
 
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
 
         -- Ready flag buffers
-        i_DU_ADC_Ready_100_front : in std_logic_vector(0 to pipeline_size - 1);
-        i_DU_ADC_Ready_100_back  : in std_logic_vector(0 to pipeline_size - 1);
+        i_DU_ADC_Ready_100_front  : in    std_logic_vector(0 to pipeline_size - 1);
+        i_DU_ADC_Ready_100_back   : in    std_logic_vector(0 to pipeline_size - 1);
         -- DU_ADC Data
-        DU_ADC_Front_Dout        : in Array_8x16_type;
-        DU_ADC_Back_Dout         : in Array_8x16_type
+        DU_ADC_Front_Dout         : in    Array_8x16_type;
+        DU_ADC_Back_Dout          : in    Array_8x16_type;
         -------------------------------
         -- Out event processor
         -------------------------------
 
-        --		o_Event_B					: out std_logic_vector(31 downto 0);
-        --		o_Event_A					: out std_logic_vector(31 downto 0);
-        --		
-        --		o_Event_Energy 				: out std_logic_vector(77 downto 0);
-        --		o_A_B         				: out signed(63 downto 0);
-        --		
-        --		o_Energy_corrected_edge		: out std_logic;	
-        --		o_Energy_corrected			: out std_logic;			
-        --		
-        -- 
-        --        o_Phase_enable       	 	: out std_logic;
-        --        o_div_read            		: out std_logic;
-        --
-        --		EP_Capture_Filter_A_w	    : inout Array_8x31_type;
-        --	    EP_Capture_Filter_B_w	    : inout Array_8x31_type;		        
-        --        --------------------------------------------------------------------------------------------
-        --        -- FROM UNIVERSAL GENERATOR SIGNALS
-        --        --------------------------------------------------------------------------------------------
-        --		
-        --        i_Data_in					: in STD_LOGIC_VECTOR (15 downto 0);  
-        --        i_Address					: in STD_LOGIC_VECTOR (15 downto 0);  
-        --        i_Write  					: in STD_LOGIC;
-        --
-        --		buffer_B_A_division_start	: out std_logic
+        o_Event_B                 : out   std_logic_vector(31 downto 0);
+        o_Event_A                 : out   std_logic_vector(31 downto 0);
+        o_Event_Energy            : out   std_logic_vector(77 downto 0);
+        o_A_B                     : out   signed(63 downto 0);
+        o_Energy_corrected_edge   : out   std_logic;
+        o_Energy_corrected        : out   std_logic;
+        o_Phase_enable            : out   std_logic;
+        o_div_read                : out   std_logic;
+        EP_Capture_Filter_A_w     : inout std_logic_vector(31 downto 0);
+        EP_Capture_Filter_B_w     : inout std_logic_vector(31 downto 0)
 
     );
 
@@ -92,7 +78,10 @@ architecture Behavioral of Event_Processor is
 
     signal o_Rdy_front, o_Rdy_back : std_logic_vector(0 to pipeline_size - 1);
     signal o_Din_front, o_Din_back : std_logic_vector(15 downto 0);
-    signal o_id_front, o_id_back   : std_logic_vector(2 downto 0);
+    signal o_id_front, o_id_back   : std_logic_vector(id_size downto 0);
+
+    signal EP_Capture_Filter_A : signed(31 downto 0);
+    signal EP_Capture_Filter_B : signed(31 downto 0);
 
 begin
 
@@ -144,7 +133,7 @@ begin
             -- Out filter
             -------------------------------
 
-            o_out   => open,
+            o_out   => EP_Capture_Filter_A,
             o_rdy   => open
         );
 
@@ -164,8 +153,38 @@ begin
             -------------------------------
             -- Out filter
             -------------------------------            
-            o_out   => open,
+            o_out   => EP_Capture_Filter_B,
             o_rdy   => open
+        );
+
+    EP_Capture_Filter_A_w <= std_logic_vector(EP_Capture_Filter_A);
+    EP_Capture_Filter_B_w <= std_logic_vector(EP_Capture_Filter_B);
+
+    -----------------------------------------------------------------
+    -- Energy correction
+    -----------------------------------------------------------------
+
+    Inst_Energy_correction : entity work.Energy_correction
+        port map(
+            -- Reset and Clock
+            i_Rst_n                   => i_Rst_n,
+            i_CLOCK_100_MHZ           => i_Clk,
+            -- input EP capture filter
+
+            i_EP_Capture_Filter_A_w   => EP_Capture_Filter_A_w,
+            i_EP_Capture_Filter_B_w   => EP_Capture_Filter_B_w,
+            --  Event_detect
+            o_Event_A                 => o_Event_A,
+            o_Event_B                 => o_Event_B,
+            --  output result   
+            o_Event_Energy            => o_Event_Energy,
+            o_A_B                     => o_A_B,
+            -- out
+            o_Energy_corrected_edge   => o_Energy_corrected_edge,
+            o_Energy_corrected        => o_Energy_corrected,
+            o_Phase_enable            => o_Phase_enable, -- digital pulse energy correction is applied
+            o_div_read                => o_div_read, -- means result has been read   
+            buffer_B_A_division_start => open
         );
 
 end architecture Behavioral;

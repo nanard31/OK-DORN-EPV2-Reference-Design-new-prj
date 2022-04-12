@@ -14,8 +14,19 @@
 	<natures>
 		<nature>com.sigasi.hdt.vhdl.ui.vhdlNature</nature>
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
+		<nature>com.sigasi.hdt.verilog.ui.verilogNature</nature>
 	</natures>
 	<linkedResources>
+		<link>
+			<name>ADCLTC2311_Driver.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/ADC/ADCLTC2311_Driver.vhd</locationURI>
+		</link>
+		<link>
+			<name>ADCs.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/ADC/ADCs.vhd</locationURI>
+		</link>
 		<link>
 			<name>Array_Substractor.vhd</name>
 			<type>1</type>
@@ -37,9 +48,19 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_in_mux.vhd</locationURI>
 		</link>
 		<link>
+			<name>Energy_correction.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Energy_correction.vhd</locationURI>
+		</link>
+		<link>
 			<name>Event_Processor.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Event_Processor.vhd</locationURI>
+		</link>
+		<link>
+			<name>Event_Processor_Interfaces.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Event_Processor_Interfaces.vhd</locationURI>
 		</link>
 		<link>
 			<name>Filter.vhd</name>
@@ -47,9 +68,24 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Filter.vhd</locationURI>
 		</link>
 		<link>
+			<name>OctoPulse.v</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/OctoPulse.v</locationURI>
+		</link>
+		<link>
 			<name>Sum.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Sum.vhd</locationURI>
+		</link>
+		<link>
+			<name>Universal_signal_generator.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Universal_signal_generator.vhd</locationURI>
+		</link>
+		<link>
+			<name>divider.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/divider.vhd</locationURI>
 		</link>
 		<link>
 			<name>Common Libraries/DRAG_REUSABLE_LIBRARIES_HERE.txt</name>
@@ -80,6 +116,11 @@
 			<name>Common Libraries/unisims</name>
 			<type>2</type>
 			<location>C:/TORTOISE_EP/OK-DORN-EPV2-Reference-Design-new-prj/sigasi/unisims</location>
+		</link>
+		<link>
+			<name>Cores/Buffering_Data_stub.vhdl</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Buffering_Data/Buffering_Data_stub.vhdl</locationURI>
 		</link>
 		<link>
 			<name>Cores/RAM_sum_stub.vhdl</name>

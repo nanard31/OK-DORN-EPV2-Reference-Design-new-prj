@@ -46,13 +46,13 @@ entity Array_Substractor is
         -- Data input
         i_Din_i         : in  signed(31 downto 0);
         i_Din_j         : in  signed(31 downto 0);
-        i_id_i          : in  std_logic_vector(2 downto 0);
-        i_id_j          : in  std_logic_vector(2 downto 0);
+        i_id_i          : in  std_logic_vector(id_size downto 0);
+        i_id_j          : in  std_logic_vector(id_size downto 0);
         -- output 
 
         o_out           : out signed(31 downto 0);
         o_rdy           : out std_logic_vector(0 to pipeline_size - 1);
-        o_id            : out std_logic_vector(2 downto 0)
+        o_id            : out std_logic_vector(id_size downto 0)
     );
 end Array_Substractor;
 

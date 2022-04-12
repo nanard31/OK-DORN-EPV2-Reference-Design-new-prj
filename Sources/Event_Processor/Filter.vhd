@@ -46,14 +46,14 @@ entity Filter is
 
         -- Ready flag buffers
         i_Rdy   : in    std_logic_vector(0 to pipeline_size - 1);
-        i_id    : in    std_logic_vector(2 downto 0);
+        i_id    : in    std_logic_vector(id_size downto 0);
         -- DU_ADC Data
         i_Din   : in    std_logic_vector(15 downto 0);
         -------------------------------
         -- Out event processor
         -------------------------------
 
-        o_out   : inout Array_8x31_type;
+        o_out   : out   signed(31 downto 0);
         o_rdy   : out   std_logic_vector(0 to pipeline_size - 1)
     );
 end Filter;
@@ -78,9 +78,9 @@ architecture Behavioral of Filter is
 
     signal o_sum_i : signed(31 downto 0);
     signal o_out_i : std_logic_vector(15 downto 0);
-    signal o_id_i  : std_logic_vector(2 downto 0);
+    signal o_id_i  : std_logic_vector(id_size downto 0);
 
-    signal o_id_j : std_logic_vector(2 downto 0);
+    signal o_id_j : std_logic_vector(id_size downto 0);
 
     -- out A filter		
 
@@ -96,7 +96,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => to_unsigned(7 - 1, 6),
+            i_size          => to_unsigned(8 - 1, 6),
             -- data science input
 
             -- Ready flag buffers
@@ -125,7 +125,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => to_unsigned(7 - 1, 6),
+            i_size          => to_unsigned(8 - 1, 6),
             -- data science input
 
             -- Ready flag buffers
@@ -160,10 +160,13 @@ begin
             i_id_i          => o_id_i,
             i_id_j          => o_id_j,
             --out
-            o_out           => open,
-            o_rdy           => open,
+            o_out           => o_out,
+            o_rdy           => o_rdy,
             o_id            => open
         );
+
+
+
 
 end;
 

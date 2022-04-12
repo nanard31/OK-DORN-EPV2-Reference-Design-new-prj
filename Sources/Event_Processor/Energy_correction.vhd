@@ -156,7 +156,7 @@ begin
 						div_read     <= '0';
 						Energy_corrected <= '0';
 						
-						if signed(o_EP_Capture_Filter_A_w_old) > signed(i_EP_Capture_Filter_A_w) and signed(i_EP_Capture_Filter_A_w)>"0000000100111100000000" then    
+						if signed(o_EP_Capture_Filter_A_w_old) > signed(i_EP_Capture_Filter_A_w) and signed(i_EP_Capture_Filter_A_w)> to_signed(100,32) then    
 						   i_Event_A <= o_EP_Capture_Filter_A_w_old;
 						   i_Event_B <= o_EP_Capture_Filter_B_w_old;
 						   B_A_division_start <= '1';

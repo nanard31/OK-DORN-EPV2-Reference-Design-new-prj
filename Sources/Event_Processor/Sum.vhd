@@ -36,36 +36,36 @@ entity Sum is
     port(
         -- Reset and Clock
 
-        i_Rst_n         : in    std_logic;
-        i_CLOCK_100_MHZ : in    std_logic;
+        i_Rst_n         : in  std_logic;
+        i_CLOCK_100_MHZ : in  std_logic;
         -- Param
 
-        i_size          : in    unsigned(5 downto 0);
+        i_size          : in  unsigned(5 downto 0);
         -- data science input
 
         -- Ready flag input
-        i_Rdy           : in    std_logic_vector(0 to pipeline_size - 1);
-        i_id            : in    std_logic_vector(2 downto 0);
+        i_Rdy           : in  std_logic_vector(0 to pipeline_size - 1);
+        i_id            : in  std_logic_vector(id_size downto 0);
         -- Data input
-        i_Din           : in    std_logic_vector(15 downto 0);
+        i_Din           : in  std_logic_vector(15 downto 0);
         -- output to another Sum block
 
         --o_out_array     : out   Array_8x16_type; --debug
 
-        o_rdy           : out   std_logic_vector(0 to pipeline_size - 1);
-        o_id            : out   std_logic_vector(2 downto 0);
-        o_out           : out   std_logic_vector(15 downto 0);
+        o_rdy           : out std_logic_vector(0 to pipeline_size - 1);
+        o_id            : out std_logic_vector(id_size downto 0);
+        o_out           : out std_logic_vector(15 downto 0);
         -- sum	
 
         --o_sum_array     : inout Array_8x31_type; --debug
-        o_sum           : out   signed(31 downto 0)
+        o_sum           : out signed(31 downto 0)
     );
 end Sum;
 
 architecture Behavioral of Sum is
 
     --	FSM
-    type FSM_ReadState is (load_ram_wait_rdy, load_ram_manage_ptr, wait_rdy, manage_ptr);
+    type FSM_ReadState is (load_ram_zero, load_ram_wait_rdy, load_ram_manage_ptr, wait_rdy, manage_ptr);
     signal case_FSM_ReadState : FSM_ReadState;
 
     --	RAM0B coef 
@@ -91,9 +91,9 @@ architecture Behavioral of Sum is
 
     -- id
 
-    signal save_i_id : std_logic_vector(2 downto 0);
-    signal addra     : unsigned(8 downto 0);
-    signal addrb     : unsigned(8 downto 0);
+    signal save_i_id : std_logic_vector(id_size downto 0);
+    signal addra     : unsigned(6 downto 0);
+    signal addrb     : unsigned(6 downto 0);
 
     -- -- id
     -- signal	i_id		: std_logic_vector(1 downto 0);
@@ -101,8 +101,8 @@ architecture Behavioral of Sum is
     -- signal addra	: unsigned(7 downto 0);
     -- signal addrb	: unsigned(7 downto 0);
 
---    signal o_out_array  : Array_8x16_type; --debug
-    signal o_sum_array  : Array_8x31_type; --debug
+    --    signal o_out_array  : Array_8x16_type; --debug
+    signal o_sum_array : Array_8x31_type; --debug
 
 begin
 
@@ -133,7 +133,7 @@ begin
 
             --	FSM
 
-            case_FSM_ReadState <= load_ram_wait_rdy;
+            case_FSM_ReadState <= load_ram_zero;
 
             --	RAM coef 
             wea   <= (others => '0');
@@ -158,7 +158,7 @@ begin
             -- out science event
 
             --o_out_array <= (others => (others => '0'));
-            o_rdy       <= (others => '0');
+            o_rdy <= (others => '0');
 
             doutb_array <= (others => (others => '0'));
 
@@ -175,6 +175,17 @@ begin
 
                 case case_FSM_ReadState is
 
+                    when load_ram_zero =>
+
+                        wea   <= "1";
+                        dina  <= (others => '0'); -- init all data RAM
+                        addra <= addra + 1;
+
+                        if addra = (2 ** (addra'high)-1) then
+                            wea                <= "0";
+                            case_FSM_ReadState <= load_ram_wait_rdy;
+                        end if;
+
                     when load_ram_wait_rdy =>
 
                         if i_Rdy(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
@@ -184,7 +195,7 @@ begin
                             o_id      <= i_id;
 
                             wea   <= "1";
-                            dina  <= unsigned(i_Din); -- write data RAM
+                            dina  <= unsigned(i_Din); -- write data RAM first sample
                             addra <= unsigned(i_id) & ptr_wr; -- set write RAM add 
 
                             case_FSM_ReadState <= load_ram_manage_ptr;
@@ -193,7 +204,7 @@ begin
 
                     when load_ram_manage_ptr =>
 
-                        if unsigned(save_i_id) = pipeline_size - 1 and ptr_wr < i_size then -- set deep A0......A7
+                        if unsigned(save_i_id) = pipeline_size - 1 and ptr_wr < i_size-1 then -- set deep A0......A7 
 
                             -- case increment pointer and continous RAM  loading
                             ptr_wr             <= ptr_wr + 1;
@@ -201,7 +212,7 @@ begin
 
                         else
 
-                            if ptr_wr >= i_size then
+                            if ptr_wr >= i_size-1 then
 
                                 -- ram  loading finish
                                 case_FSM_ReadState <= wait_rdy;
@@ -234,8 +245,8 @@ begin
                             --debug
                             --o_out_array <= doutb_array;
                             -- out component
-                            o_out       <= doutb_array(To_integer(unsigned(i_id)));
-                            o_sum       <= o_sum_array(To_integer(unsigned(i_id)));
+                            o_out <= doutb_array(To_integer(unsigned(i_id)));
+                            o_sum <= o_sum_array(To_integer(unsigned(i_id)));
 
                             o_rdy(To_integer(unsigned(i_id))) <= '1';
 

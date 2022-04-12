@@ -211,13 +211,13 @@ set_property PACKAGE_PIN J14 [get_ports {ddr3_ck_p[0]}]
 set_property PACKAGE_PIN H14 [get_ports {ddr3_ck_n[0]}]
 set_property SLEW FAST [get_ports ddr3_ck*]
 set_property IOSTANDARD DIFF_SSTL15 [get_ports ddr3_ck_*]
-set_property IOSTANDARD LVCMOS18 [get_ports o_ADC_Conv_n]
-set_property IOSTANDARD LVCMOS18 [get_ports o_ADC_Sck]
-set_property IOSTANDARD LVCMOS18 [get_ports i_ADC_SDO]
+#set_property IOSTANDARD LVCMOS18 [get_ports o_ADC_Conv_n]
+#set_property IOSTANDARD LVCMOS18 [get_ports o_ADC_Sck]
+#set_property IOSTANDARD LVCMOS18 [get_ports i_ADC_SDO]
 
-set_property PACKAGE_PIN Y9 [get_ports o_ADC_Conv_n]
-set_property PACKAGE_PIN T6 [get_ports o_ADC_Sck]
-set_property PACKAGE_PIN R6 [get_ports i_ADC_SDO]
+#set_property PACKAGE_PIN Y9 [get_ports o_ADC_Conv_n]
+#set_property PACKAGE_PIN T6 [get_ports o_ADC_Sck]
+#set_property PACKAGE_PIN R6 [get_ports i_ADC_SDO]
 
 set_clock_groups -asynchronous -group [get_clocks {mmcm0_clk0 okUH0}] -group [get_clocks {sys_clk_p clk_pll_i}]
 
@@ -254,15 +254,15 @@ set_clock_groups -asynchronous -group [get_clocks {mmcm0_clk0 okUH0}] -group [ge
 #create_generated_clock -name My_constraint_clock -source [get_pins clock_buf/inst/clk_100MHz] -multiply_by 1 [get_pins clock_buf/inst/clk_100MHz]
 #set_input_delay -clock [get_clocks *100MH*] -clock_fall -fall 2.000 [get_ports -filter { NAME =~  "*SDO*" && DIRECTION == "IN" }]
 
-set_input_delay -clock [get_clocks *ok*] -clock_fall -fall -min -add_delay 2.000 [get_ports i_ADC_SDO]
-set_input_delay -clock [get_clocks okUH0] -clock_fall -fall -max -add_delay 4.000 [get_ports i_ADC_SDO]
+#set_input_delay -clock [get_clocks *ok*] -clock_fall -fall -min -add_delay 2.000 [get_ports i_ADC_SDO]
+#set_input_delay -clock [get_clocks okUH0] -clock_fall -fall -max -add_delay 4.000 [get_ports i_ADC_SDO]
 
 set_property BEL B5FF [get_cells EP_inst/o_ADC_Generator_mode_reg]
 set_property LOC SLICE_X8Y64 [get_cells EP_inst/o_ADC_Generator_mode_reg]
 set_property BEL D5FF [get_cells {wo05/wirehold_reg[0]}]
 set_property LOC SLICE_X9Y65 [get_cells {wo05/wirehold_reg[0]}]
-set_input_delay -clock [get_clocks *clk_200MHz*] -clock_fall -min -add_delay 2.000 [get_ports -filter { NAME =~  "*SDO*" && DIRECTION == "IN" }]
-set_input_delay -clock [get_clocks *clk_200MHz*] -clock_fall -max -add_delay 4.000 [get_ports -filter { NAME =~  "*SDO*" && DIRECTION == "IN" }]
+#set_input_delay -clock [get_clocks *clk_200MHz*] -clock_fall -min -add_delay 2.000 [get_ports -filter { NAME =~  "*SDO*" && DIRECTION == "IN" }]
+#set_input_delay -clock [get_clocks *clk_200MHz*] -clock_fall -max -add_delay 4.000 [get_ports -filter { NAME =~  "*SDO*" && DIRECTION == "IN" }]
 
 #set_max_delay -from [get_pins {wi00/ep_dataout_reg[2]_replica_11/C}] -to [get_pins {EP_inst/SHIFT_divider/Result_reg[26]/CLR}] 5.000
 #set_max_delay -from [get_pins {wi01/ep_dataout_reg[10]/C}] -to [get_pins {EP_inst/sample_gen/Time_counter_reg[25]/D}] 10.000
