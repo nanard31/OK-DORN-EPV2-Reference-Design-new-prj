@@ -146,6 +146,9 @@ module OctoPulse(
     wire o_div_read/* synthesis keep */;
     wire o_Trig/* synthesis keep */;
 
+    wire [5:0]  sum_plus;
+    wire [5:0]  sum_minus;
+
     function [7:0] xem7310_led;
         input [7:0] a;
         integer i;
@@ -372,6 +375,8 @@ module OctoPulse(
     okWireOR # (.N(11)) wireOR (okEH, okEHx);
     okWireIn       wi00 (.okHE(okHE), .ep_addr(8'h00), .ep_dataout(ep00wire));
     okWireIn       wi01 (.okHE(okHE), .ep_addr(8'h01), .ep_dataout(Time_period));
+    okWireIn       wi02 (.okHE(okHE), .ep_addr(8'h02), .ep_dataout(sum_plus));
+    okWireIn       wi03 (.okHE(okHE), .ep_addr(8'h03), .ep_dataout(sum_minus));
 
     okWireIn       address_RAM_generator_wire  (.okHE(okHE), .ep_addr(8'h10), .ep_dataout(Address_generator));
     okWireIn       Data_RAM_generator_wire  (.okHE(okHE),  .ep_addr(8'h11), .ep_dataout(Data_generator));
@@ -541,8 +546,7 @@ module OctoPulse(
         //.i_Clk(Clk_100MHz),//clk_200MHz),//divided_clk),//okClk)                ,//clk_100Mhz),//okClk)                ,//: -- 100 MHz
         .i_Clk(clk), //clk_200MHz),//divided_clk),//okClk)                ,//clk_100Mhz),//okClk)                ,//: -- 100 MHz
         .i_Clk_200MHz(clk),
-        .i_Clk_opal_Kelly(okClk),
-        .i_pipe_in_full(pipe_in_full),
+
         .o_read_Fifo(o_read_Fifo),
 
 
@@ -555,11 +559,11 @@ module OctoPulse(
         //-- Debug
         //-------------------------------
         .i_wire(ep00wire[3]),
-        .o_start_division(o_start_division),
+
         .o_Phase_enable(o_Phase_enable),
         .o_div_read (o_div_read),
-        .o_Trig(o_Trig),
-        .Time_period(Time_period),
+
+
         .o_Peak_detected(Peak_detected),
         .o_Peak_Value(Peak_Value),
 
@@ -582,8 +586,11 @@ module OctoPulse(
 
         .wr_en_fifo_in(wr_en_fifo_in),
         .BigVector(BigVector),
-
-
+        //--------------------------------------------------------------------------------------------
+        //-- SUM
+        //-------------------------------------------------------------------------------------------
+        .i_sum_plus(sum_plus),
+        .i_sum_minus(sum_minus),
         //--------------------------------------------------------------------------------------------
         //-- ADC SPI
         //--------------------------------------------------------------------------------------------

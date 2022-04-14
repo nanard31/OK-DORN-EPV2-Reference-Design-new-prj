@@ -43,8 +43,7 @@ entity Event_Processor_Interfaces is
 
         i_Clk                 : in    std_logic; -- 100 MHz
         i_Clk_200MHz          : in    std_logic; -- 200 MHz
-        i_Clk_opal_Kelly      : in    std_logic; -- 100.8 MHz  
-        i_pipe_in_full        : in    std_logic;
+
         o_read_Fifo           : out   std_logic;
         ---------------------------------------------------------------------------------------------
         -- Test
@@ -55,37 +54,14 @@ entity Event_Processor_Interfaces is
         -- EP outputs
         ---------------------------------------------------------------------------------------------
 
-        -- o_EP_Event_Time             : out std_logic_vector(7 downto 0);    -- 8
-        -- o_EP_Event_Filter_A         : out std_logic_vector(31 downto 0);   -- 32
-        -- o_EP_Event_Filter_B         : out std_logic_vector(31 downto 0);   -- 32
-        -- o_EP_Event_Phi              : out std_logic_vector(31 downto 0);   -- 8
-        -- o_EP_Event_Energy_16bits    : out std_logic_vector(15 downto 0);   -- 16
-        -- --o_EP_Event_Energy           : out std_logic_vector(15 downto 0);
-        -- o_EP_Capture_Buffered       : out std_logic_vector(15 downto 0);   -- 16
 
-        -- o_EP_Event_Rdy              : out std_logic;
-
-        -- -------------------------------
-        -- -- ADC
-        -- -------------------------------
-        -- o_ADC_Conv_n          : out std_logic;
-        -- o_ADC_Sck             : out std_logic;
-        -- i_ADC_SDO             : in  std_logic;
-        -------------------------------
-        -- Division
-        -------------------------------
-
-        --	o_EP_Division_Done    : out std_logic;
 
         -------------------------------
         -- Debug
         -------------------------------
         i_wire                : in    std_logic;
-        o_start_division      : out   std_logic;
         o_Phase_enable        : out   std_logic;
         o_div_read            : inout std_logic;
-        o_Trig                : out   std_logic;
-        Time_period           : in    std_logic_vector(27 downto 0);
         o_Peak_detected       : out   std_logic;
         o_Peak_Value          : out   std_logic_vector(15 downto 0);
         --------------------------------------------------------------------------------------------
@@ -103,6 +79,11 @@ entity Event_Processor_Interfaces is
         i_delay               : in    std_logic_vector(15 downto 0);
         wr_en_fifo_in         : inout std_logic;
         BigVector             : out   std_logic_vector(255 downto 0);
+        --------------------------------------------------------------------------------------------
+        -- SUM
+        -------------------------------------------------------------------------------------------
+        i_sum_plus            : in    std_logic_vector(5 downto 0);
+        i_sum_minus           : in    std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
         -- ADC SPI
         --------------------------------------------------------------------------------------------
@@ -139,8 +120,7 @@ architecture Behavioral of Event_Processor_Interfaces is
     signal o_EP_Capture_Filter_B_w : std_logic_vector(31 downto 0);
 
     signal filter_reset : std_logic;
-    signal i_Din_RDY    : std_logic;
-    signal i_Din        : std_logic_vector(15 downto 0);
+
 
     -----------------------------------------------------------------
     -- Energy correction
@@ -159,21 +139,12 @@ architecture Behavioral of Event_Processor_Interfaces is
     -- --  buffering data   
     -- -----------------------------------------------------------------	
 
-    signal o_full, i_rd_en_r, o_empty : std_logic;
+    signal o_empty : std_logic;
+
     signal o_rd_data                  : std_logic_vector(79 downto 0);
     signal i_wr_data_r                : std_logic_vector(79 downto 0);
     -- OUTPUT 
     signal rd_data_count              : STD_LOGIC_VECTOR(6 DOWNTO 0);
-    signal wr_data_count              : STD_LOGIC_VECTOR(6 DOWNTO 0);
-    signal i_EP_all_data_resync       : std_logic_vector(155 downto 0);
-    signal o_EP_all_data_resync       : std_logic_vector(155 downto 0);
-
-    --------------------------------------------------------------------
-    -- resynchronize division order
-    -----------------------------------------------------------------------
-
-    signal B_A_division_start_sync  : std_logic;
-    signal B_A_division_start_sync2 : std_logic;
 
     -- -----------------------------------------------------------------
     -- --  Sample Generator   
@@ -181,11 +152,7 @@ architecture Behavioral of Event_Processor_Interfaces is
 
     signal i_rd_en                           : std_logic;
     signal start_read                        : std_logic;
-    signal start_counter                     : std_logic;
-    signal read_sended                       : std_logic;
-    signal valid                             : std_logic;
-    signal data                              : integer;
-    signal wait_start_read                   : integer;
+ 
     signal o_div_read_lock                   : std_logic;
     signal o_EP_Capture_Filter_A_w_o_rd_data : std_logic_vector(31 downto 0);
     signal o_EP_Capture_Filter_B_w_o_rd_data : std_logic_vector(31 downto 0);
@@ -195,17 +162,13 @@ architecture Behavioral of Event_Processor_Interfaces is
     signal o_EP_Event_Phi            : std_logic_vector(31 downto 0); -- 8
     signal o_EP_Event_Energy_16bits  : std_logic_vector(15 downto 0); -- 16
     signal o_EP_Event_Energy_32bits  : std_logic_vector(31 downto 0); -- 32
-    signal o_EP_Event_Filter_A       : std_logic_vector(31 downto 0); -- 32
-    signal o_EP_Event_Filter_B       : std_logic_vector(31 downto 0); -- 32	
+
     signal cpt                       : integer range 0 to 63;
-    signal buffer_B_A_division_start : std_logic;
-    signal almost_full               : std_logic;
+
     signal counter                   : integer;
     signal delay_end                 : std_logic;
 
-    -- id
-    signal id_front : std_logic_vector(2 downto 0);
-    signal id_back  : std_logic_vector(2 downto 0);
+
 
     -- Ready flag buffers
     signal DU_ADC_Ready_100_front : std_logic_vector(0 to pipeline_size - 1);
@@ -213,6 +176,8 @@ architecture Behavioral of Event_Processor_Interfaces is
 
     signal DU_ADC_Front_Dout : Array_8x16_type;
     signal DU_ADC_Back_Dout  : Array_8x16_type;
+    signal sum_plus          : std_logic_vector(5 downto 0);
+    signal sum_minus         : std_logic_vector(5 downto 0);
 
 begin
 
@@ -230,10 +195,10 @@ begin
                 i_Clk                  => i_Clk, --i_Clk,
 
                 DU_ADC_Ready_100_front => DU_ADC_Ready_100_front,
-                DU_ADC_Ready_100_back  => DU_ADC_Ready_100_back,
+                DU_ADC_Ready_100_back  => DU_ADC_Ready_100_front,
                 -- DU_ADC Data
                 DU_ADC_Front_Dout      => DU_ADC_Front_Dout,
-                DU_ADC_Back_Dout       => DU_ADC_Back_Dout,
+                DU_ADC_Back_Dout       => DU_ADC_Front_Dout,
                 -- ADC SPI
 
                 o_ADC_SCK              => o_ADC_SCK, -- SPI Serial Clock
@@ -244,26 +209,26 @@ begin
             );
     end generate ADCs_gen;
 
-    ---------------------------------------------------------------
-    -- ADC Sequencer
-    ---------------------------------------------------------------
-
-    ADC_Sequencer : if enable_adc_sequencer = "01" generate
-        Inst_ADC_Sequencer : entity work.ADC_Sequencer
-            port map(
-                i_Rst_n             => i_Rst_n,
-                CLOCK_100_MHZ       => i_Clk_200MHz, --i_Clk,
-                clk_synchro         => i_Clk,
-                Enable              => ADC_Enable,
-                EP_Test_Mode_Enable => i_EP_Test_Mode_Enable,
-                Dout                => Dout, --	i_Din,--------------------------
-                Dout_RDY            => Dout_RDY, --	i_Din_RDY,----------------------
-                ADC_Conv_n          => open,
-                ADC_Sck             => open,
-                ADC_SDO             => '0',
-                o_Trig_out          => o_Trig_out
-            );
-    end generate ADC_Sequencer;
+--    ---------------------------------------------------------------
+--    -- ADC Sequencer
+--    ---------------------------------------------------------------
+--
+--    ADC_Sequencer : if enable_adc_sequencer = "01" generate
+--        Inst_ADC_Sequencer : entity work.ADC_Sequencer
+--            port map(
+--                i_Rst_n             => i_Rst_n,
+--                CLOCK_100_MHZ       => i_Clk_200MHz, --i_Clk,
+--                clk_synchro         => i_Clk,
+--                Enable              => ADC_Enable,
+--                EP_Test_Mode_Enable => i_EP_Test_Mode_Enable,
+--                Dout                => Dout, --	i_Din,--------------------------
+--                Dout_RDY            => Dout_RDY, --	i_Din_RDY,----------------------
+--                ADC_Conv_n          => open,
+--                ADC_Sck             => open,
+--                ADC_SDO             => '0',
+--                o_Trig_out          => o_Trig_out
+--            );
+--    end generate ADC_Sequencer;
 
     -----------------------------------------------------------------
     --  Sample Generator   
@@ -284,10 +249,17 @@ begin
             );
     end generate generator;
 
-label_connection : if enable_adc_sequencer="00" generate
-    DU_ADC_Front_Dout(0)      <= Dout;
-    DU_ADC_Ready_100_front(0) <= Dout_RDY;
-end generate label_connection;
+    label_connection_Universal_signal_generator : if enable_adc_sequencer = "00" generate
+        DU_ADC_Front_Dout(0)      <= Dout;
+        DU_ADC_Ready_100_front(0) <= Dout_RDY;
+        sum_plus                  <= i_sum_plus;
+        sum_minus                 <= i_sum_minus;
+    end generate label_connection_Universal_signal_generator;
+
+    label_connection_ADC : if enable_adc_sequencer = "10" generate
+        sum_plus  <= std_logic_vector(To_unsigned(7, 6));
+        sum_minus <= std_logic_vector(To_unsigned(7, 6));
+    end generate label_connection_ADC;
 
     o_ADC_Generator_mode <= '0' when (i_wire = '0') else '1';
 
@@ -314,6 +286,9 @@ end generate label_connection;
             DU_ADC_Back_Dout         => DU_ADC_Front_Dout,
             --	o_EP_Division_Done    : out std_logic;
 
+            -- sum conf
+            sum_plus                 => sum_plus,
+            sum_minus                => sum_minus,
             -- Out event processor
 
             o_Event_B                => o_Event_B, --std_logic_vector(31 downto 0);
@@ -346,11 +321,11 @@ end generate label_connection;
             wr_en         => Dout_RDY,
             rd_en         => i_rd_en,
             dout          => o_rd_data,
-            full          => o_full,
+            full          => open,
             empty         => o_empty,
             --valid			=> valid,
             rd_data_count => rd_data_count,
-            wr_data_count => wr_data_count,
+            wr_data_count => open,
             wr_rst_busy   => open,
             rd_rst_busy   => open
         );

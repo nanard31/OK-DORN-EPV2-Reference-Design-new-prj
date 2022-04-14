@@ -33,28 +33,33 @@ use work.DORN_EP_Package.ALL;
 
 entity Filter is
     port(
-        i_Rst_n : in    std_logic;
+        i_Rst_n   : in  std_logic;
         -------------------------------
         -- CLOCK
         ------------------------------
 
-        i_Clk   : in    std_logic;      -- 100 MHz
+        i_Clk     : in  std_logic;      -- 100 MHz
 
+        --------------------------------------------------------------------------------------------
+        -- SUM
+        -------------------------------------------------------------------------------------------
+        sum_plus  : in  std_logic_vector(5 downto 0);
+        sum_minus : in  std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
 
         -- Ready flag buffers
-        i_Rdy   : in    std_logic_vector(0 to pipeline_size - 1);
-        i_id    : in    std_logic_vector(id_size downto 0);
+        i_Rdy     : in  std_logic_vector(0 to pipeline_size - 1);
+        i_id      : in  std_logic_vector(id_size downto 0);
         -- DU_ADC Data
-        i_Din   : in    std_logic_vector(15 downto 0);
+        i_Din     : in  std_logic_vector(15 downto 0);
         -------------------------------
         -- Out event processor
         -------------------------------
 
-        o_out   : out   signed(31 downto 0);
-        o_rdy   : out   std_logic_vector(0 to pipeline_size - 1)
+        o_out     : out signed(31 downto 0);
+        o_rdy     : out std_logic_vector(0 to pipeline_size - 1)
     );
 end Filter;
 
@@ -96,7 +101,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => to_unsigned(8 - 1, 6),
+            i_size          => unsigned(sum_plus),
             -- data science input
 
             -- Ready flag buffers
@@ -125,7 +130,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => to_unsigned(8 - 1, 6),
+            i_size          => unsigned(sum_minus),
             -- data science input
 
             -- Ready flag buffers
@@ -164,9 +169,6 @@ begin
             o_rdy           => o_rdy,
             o_id            => open
         );
-
-
-
 
 end;
 

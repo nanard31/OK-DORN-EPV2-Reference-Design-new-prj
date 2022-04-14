@@ -4,8 +4,8 @@ use ieee.numeric_std.all;
 
 use work.DORN_EP_Package.ALL;
 
-library unisim;
-use unisim.vcomponents.all;
+--library unisim;
+--use unisim.vcomponents.all;
 
 entity ADCs is
     port(

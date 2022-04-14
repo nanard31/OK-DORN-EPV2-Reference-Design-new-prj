@@ -79,29 +79,14 @@ architecture Behavioral of Sum is
     signal ptr_wr : unsigned(5 downto 0);
     signal ptr_rd : unsigned(5 downto 0);
 
-    --	--debug
-    --	signal view_sum		: signed(31 downto 0);
-    --	signal view_i_Din	: signed(15 downto 0);
-    --	signal view_doutb	: signed(15 downto 0);
-
     signal doutb_array : Array_8x16_type;
-
-    -- Ready flag buffers
-    --	signal Rdy_concat   : std_logic_vector(pipeline_size-1 downto 0);
 
     -- id
 
     signal save_i_id : std_logic_vector(id_size downto 0);
-    signal addra     : unsigned(id_size+6 downto 0);
-    signal addrb     : unsigned(id_size+6 downto 0);
+    signal addra     : unsigned(id_size + 6 downto 0);
+    signal addrb     : unsigned(id_size + 6 downto 0);
 
-    -- -- id
-    -- signal	i_id		: std_logic_vector(1 downto 0);
-    -- signal save_i_id	: std_logic_vector(1 downto 0);
-    -- signal addra	: unsigned(7 downto 0);
-    -- signal addrb	: unsigned(7 downto 0);
-
-    --    signal o_out_array  : Array_8x16_type; --debug
     signal o_sum_array : Array_8x31_type; --debug
 
 begin
@@ -181,7 +166,7 @@ begin
                         dina  <= (others => '0'); -- init all data RAM
                         addra <= addra + 1;
 
-                        if addra = (2 ** (addra'high)-1) then
+                        if addra = (2 ** (addra'high) - 1) then
                             wea                <= "0";
                             case_FSM_ReadState <= load_ram_wait_rdy;
                         end if;
@@ -204,7 +189,7 @@ begin
 
                     when load_ram_manage_ptr =>
 
-                        if unsigned(save_i_id) = pipeline_size - 1 and ptr_wr < i_size-1 then -- set deep A0......A7 
+                        if unsigned(save_i_id) = pipeline_size - 1 and ptr_wr < i_size - 1 then -- set deep A0......A7 
 
                             -- case increment pointer and continous RAM  loading
                             ptr_wr             <= ptr_wr + 1;
@@ -212,7 +197,7 @@ begin
 
                         else
 
-                            if ptr_wr >= i_size-1 then
+                            if ptr_wr >= i_size - 1 then
 
                                 -- ram  loading finish
                                 case_FSM_ReadState <= wait_rdy;

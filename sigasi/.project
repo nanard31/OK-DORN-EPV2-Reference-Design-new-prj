@@ -23,6 +23,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/ADC/ADCLTC2311_Driver.vhd</locationURI>
 		</link>
 		<link>
+			<name>ADCLTC2311_Emulators.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TestBench/ADCLTC2311_Emulators.vhd</locationURI>
+		</link>
+		<link>
 			<name>ADCs.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/ADC/ADCs.vhd</locationURI>
@@ -31,6 +36,11 @@
 			<name>Array_Substractor.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Array_Substractor.vhd</locationURI>
+		</link>
+		<link>
+			<name>Coeff_Table.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Coeff_Table.vhd</locationURI>
 		</link>
 		<link>
 			<name>Common Libraries</name>
@@ -78,6 +88,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Sum.vhd</locationURI>
 		</link>
 		<link>
+			<name>TB_Event_processor.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/TestBench/TB_Event_processor.vhd</locationURI>
+		</link>
+		<link>
 			<name>Universal_signal_generator.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Universal_signal_generator.vhd</locationURI>
@@ -121,6 +136,11 @@
 			<name>Cores/Buffering_Data_stub.vhdl</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Buffering_Data/Buffering_Data_stub.vhdl</locationURI>
+		</link>
+		<link>
+			<name>Cores/Generator_RAM_stub.vhdl</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Generator_RAM/Generator_RAM_stub.vhdl</locationURI>
 		</link>
 		<link>
 			<name>Cores/RAM_sum_stub.vhdl</name>

@@ -3,8 +3,8 @@
 // Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
 // Date        : Wed Apr 13 11:42:55 2022
 // Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub
-//               c:/TORTOISE_EP/OK-DORN-EPV2-Reference-Design-new-prj/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/RAM_sum/RAM_sum_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top RAM_sum -prefix
+//               RAM_sum_ RAM_sum_stub.v
 // Design      : RAM_sum
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a75tfgg484-1

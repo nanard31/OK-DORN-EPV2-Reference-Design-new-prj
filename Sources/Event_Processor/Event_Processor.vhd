@@ -38,38 +38,42 @@ use work.DORN_EP_Package.ALL;
 
 entity Event_Processor is
     port(
-        i_Rst_n                   : in    std_logic;
+        i_Rst_n                  : in    std_logic;
         -------------------------------
         -- CLOCK
         ------------------------------
 
-        i_Clk                     : in    std_logic; -- 100 MHz
+        i_Clk                    : in    std_logic; -- 100 MHz
 
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
 
         -- Ready flag buffers
-        i_DU_ADC_Ready_100_front  : in    std_logic_vector(0 to pipeline_size - 1);
-        i_DU_ADC_Ready_100_back   : in    std_logic_vector(0 to pipeline_size - 1);
+        i_DU_ADC_Ready_100_front : in    std_logic_vector(0 to pipeline_size - 1);
+        i_DU_ADC_Ready_100_back  : in    std_logic_vector(0 to pipeline_size - 1);
         -- DU_ADC Data
-        DU_ADC_Front_Dout         : in    Array_8x16_type;
-        DU_ADC_Back_Dout          : in    Array_8x16_type;
+        DU_ADC_Front_Dout        : in    Array_8x16_type;
+        DU_ADC_Back_Dout         : in    Array_8x16_type;
+        --------------------------------------------------------------------------------------------
+        -- SUM
+        -------------------------------------------------------------------------------------------
+        sum_plus                 : in    std_logic_vector(5 downto 0);
+        sum_minus                : in    std_logic_vector(5 downto 0);
         -------------------------------
         -- Out event processor
         -------------------------------
 
-        o_Event_B                 : out   std_logic_vector(31 downto 0);
-        o_Event_A                 : out   std_logic_vector(31 downto 0);
-        o_Event_Energy            : out   std_logic_vector(77 downto 0);
-        o_A_B                     : out   signed(63 downto 0);
-        o_Energy_corrected_edge   : out   std_logic;
-        o_Energy_corrected        : out   std_logic;
-        o_Phase_enable            : out   std_logic;
-        o_div_read                : out   std_logic;
-        EP_Capture_Filter_A_w     : inout std_logic_vector(31 downto 0);
-        EP_Capture_Filter_B_w     : inout std_logic_vector(31 downto 0)
-
+        o_Event_B                : out   std_logic_vector(31 downto 0);
+        o_Event_A                : out   std_logic_vector(31 downto 0);
+        o_Event_Energy           : out   std_logic_vector(77 downto 0);
+        o_A_B                    : out   signed(63 downto 0);
+        o_Energy_corrected_edge  : out   std_logic;
+        o_Energy_corrected       : out   std_logic;
+        o_Phase_enable           : out   std_logic;
+        o_div_read               : out   std_logic;
+        EP_Capture_Filter_A_w    : inout std_logic_vector(31 downto 0);
+        EP_Capture_Filter_B_w    : inout std_logic_vector(31 downto 0)
     );
 
 end Event_Processor;
@@ -114,47 +118,55 @@ begin
     Inst_Filter_front : entity work.Filter
 
         port map(
-            i_Rst_n => i_Rst_n,
+            i_Rst_n   => i_Rst_n,
             -------------------------------
             -- CLOCK
             ------------------------------
 
-            i_Clk   => i_Clk,
+            i_Clk     => i_Clk,
+            -- conf
+            -- sum conf
+            sum_plus  => sum_plus,
+            sum_minus => sum_minus,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
 
             -- Ready flag buffers
-            i_Rdy   => o_Rdy_front,
-            i_id    => o_id_front,
+            i_Rdy     => o_Rdy_front,
+            i_id      => o_id_front,
             -- DU_ADC Data
-            i_Din   => o_Din_front,
+            i_Din     => o_Din_front,
             -------------------------------
             -- Out filter
             -------------------------------
 
-            o_out   => EP_Capture_Filter_A,
-            o_rdy   => open
+            o_out     => EP_Capture_Filter_A,
+            o_rdy     => open
         );
 
     Inst_Filter_back : entity work.Filter
         port map(
-            i_Rst_n => i_Rst_n,
+            i_Rst_n   => i_Rst_n,
             -------------------------------
             -- CLOCK
             ------------------------------
-            i_Clk   => i_Clk,
+            i_Clk     => i_Clk,
+            -- conf
+            -- sum conf
+            sum_plus  => sum_plus,
+            sum_minus => sum_minus,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
-            i_Rdy   => o_Rdy_back,
-            i_id    => o_id_back,
-            i_Din   => o_Din_back,
+            i_Rdy     => o_Rdy_back,
+            i_id      => o_id_back,
+            i_Din     => o_Din_back,
             -------------------------------
             -- Out filter
             -------------------------------            
-            o_out   => EP_Capture_Filter_B,
-            o_rdy   => open
+            o_out     => EP_Capture_Filter_B,
+            o_rdy     => open
         );
 
     EP_Capture_Filter_A_w <= std_logic_vector(EP_Capture_Filter_A);

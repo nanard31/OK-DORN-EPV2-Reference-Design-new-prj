@@ -34,9 +34,14 @@ for (index = 0; index < 4096;++index)
 		pulseArray[index] = 0;
 }
 
+sendToHSL_setWireIn(2, 15)
+sendToHSL_setWireIn(3, 15)
+
 sendToHSL_setWireIn(0, 4)//reset
-waitMs(1000)
+waitMs(10)
 sendToHSL_setWireIn(0, 0)//reset
+
+
 
 print ("Loading pulse to Opal Kelly...")
 plot(pulseArray,"pulse")
