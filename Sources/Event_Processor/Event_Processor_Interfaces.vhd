@@ -284,8 +284,10 @@ begin
             );
     end generate generator;
 
+label_connection : if enable_adc_sequencer="00" generate
     DU_ADC_Front_Dout(0)      <= Dout;
     DU_ADC_Ready_100_front(0) <= Dout_RDY;
+end generate label_connection;
 
     o_ADC_Generator_mode <= '0' when (i_wire = '0') else '1';
 

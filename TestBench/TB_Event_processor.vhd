@@ -163,9 +163,8 @@ architecture Behavioral of TB_Event_processor is
 	signal Gain_ramp  		:	Gain_ramp_array;
 
 
-	--constant Gain_ramp_cte :	Gain_ramp_array := (1,0,1,0,1,0,1,0); 
-	constant Gain_ramp_cte :	integer := (1); 
-
+	--constant Gain_ramp_cte :	Gain_ramp_array := (1,1,1,1,1,1,1,1); 
+	constant Gain_ramp_cte :	Gain_ramp_array := (1,1,1,1);
 	
 begin
 -------------------------------------------------------
@@ -488,7 +487,7 @@ label_generate : for i in 0 to pipeline_size-1 generate
 									count(i)	<=	0;
 									up(i)		<=	'1';
 									--Gain_ramp	<=	Gain_ramp+200;
-									Gain_ramp(i)	<=	1;
+									Gain_ramp(i)	<=	Gain_ramp_cte(i);
 									-- Gain_ramp(1)	<=	2000;
 									-- Gain_ramp(2)	<=	2000;
 									-- Gain_ramp(3)	<=	2000;

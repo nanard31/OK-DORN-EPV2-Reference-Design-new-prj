@@ -92,8 +92,8 @@ architecture Behavioral of Sum is
     -- id
 
     signal save_i_id : std_logic_vector(id_size downto 0);
-    signal addra     : unsigned(6 downto 0);
-    signal addrb     : unsigned(6 downto 0);
+    signal addra     : unsigned(id_size+6 downto 0);
+    signal addrb     : unsigned(id_size+6 downto 0);
 
     -- -- id
     -- signal	i_id		: std_logic_vector(1 downto 0);
