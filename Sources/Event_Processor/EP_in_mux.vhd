@@ -110,12 +110,12 @@ begin
                       "11" when Rdy_concat = "1000" else
                       "00";
     end generate dispatch;
-    
+
     one : if pipeline_size = 1 generate
 
-        id         <= "0";
-                     
-    end generate one;    
+        id <= "0";
+
+    end generate one;
 
 end;
 

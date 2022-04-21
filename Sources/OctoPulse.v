@@ -560,7 +560,7 @@ module OctoPulse(
         //-------------------------------
         .i_wire(ep00wire[3]),
 
-        .o_Phase_enable(o_Phase_enable),
+        //.o_Phase_enable(o_Phase_enable),
         .o_div_read (o_div_read),
 
 

@@ -54,13 +54,11 @@ entity Event_Processor_Interfaces is
         -- EP outputs
         ---------------------------------------------------------------------------------------------
 
-
-
         -------------------------------
         -- Debug
         -------------------------------
         i_wire                : in    std_logic;
-        o_Phase_enable        : out   std_logic;
+        --o_Phase_enable        : out   std_logic;
         o_div_read            : inout std_logic;
         o_Peak_detected       : out   std_logic;
         o_Peak_Value          : out   std_logic_vector(15 downto 0);
@@ -121,19 +119,18 @@ architecture Behavioral of Event_Processor_Interfaces is
 
     signal filter_reset : std_logic;
 
-
     -----------------------------------------------------------------
     -- Energy correction
     -----------------------------------------------------------------
 
-    signal o_Event_B               : std_logic_vector(31 downto 0);
-    signal o_Event_A               : std_logic_vector(31 downto 0);
-    signal o_EP_o_Event_B          : std_logic_vector(31 downto 0);
-    signal o_EP_o_Event_A          : std_logic_vector(31 downto 0);
-    signal o_Event_Energy          : std_logic_vector(77 downto 0);
-    signal A_B                     : signed(63 downto 0);
-    signal o_Energy_corrected_edge : std_logic;
-    signal o_Energy_corrected      : std_logic;
+    signal o_Event_B      : std_logic_vector(31 downto 0);
+    signal o_Event_A      : std_logic_vector(31 downto 0);
+    signal o_EP_o_Event_B : std_logic_vector(31 downto 0);
+    signal o_EP_o_Event_A : std_logic_vector(31 downto 0);
+    signal o_Event_Energy : std_logic_vector(77 downto 0);
+    signal A_B            : signed(63 downto 0);
+    --   signal o_Energy_corrected_edge : std_logic;
+    --   signal o_Energy_corrected      : std_logic;
 
     -- -----------------------------------------------------------------
     -- --  buffering data   
@@ -141,34 +138,32 @@ architecture Behavioral of Event_Processor_Interfaces is
 
     signal o_empty : std_logic;
 
-    signal o_rd_data                  : std_logic_vector(79 downto 0);
-    signal i_wr_data_r                : std_logic_vector(79 downto 0);
+    signal o_rd_data     : std_logic_vector(79 downto 0);
+    signal i_wr_data_r   : std_logic_vector(79 downto 0);
     -- OUTPUT 
-    signal rd_data_count              : STD_LOGIC_VECTOR(6 DOWNTO 0);
+    signal rd_data_count : STD_LOGIC_VECTOR(6 DOWNTO 0);
 
     -- -----------------------------------------------------------------
     -- --  Sample Generator   
     -- -----------------------------------------------------------------
 
-    signal i_rd_en                           : std_logic;
-    signal start_read                        : std_logic;
- 
+    signal i_rd_en    : std_logic;
+    signal start_read : std_logic;
+
     signal o_div_read_lock                   : std_logic;
     signal o_EP_Capture_Filter_A_w_o_rd_data : std_logic_vector(31 downto 0);
     signal o_EP_Capture_Filter_B_w_o_rd_data : std_logic_vector(31 downto 0);
     signal EP_Capture_Data                   : std_logic_vector(15 downto 0);
     --empty
 
-    signal o_EP_Event_Phi            : std_logic_vector(31 downto 0); -- 8
-    signal o_EP_Event_Energy_16bits  : std_logic_vector(15 downto 0); -- 16
-    signal o_EP_Event_Energy_32bits  : std_logic_vector(31 downto 0); -- 32
+    signal o_EP_Event_Phi           : std_logic_vector(31 downto 0); -- 8
+    signal o_EP_Event_Energy_16bits : std_logic_vector(15 downto 0); -- 16
+    signal o_EP_Event_Energy_32bits : std_logic_vector(31 downto 0); -- 32
 
-    signal cpt                       : integer range 0 to 63;
+    signal cpt : integer range 0 to 63;
 
-    signal counter                   : integer;
-    signal delay_end                 : std_logic;
-
-
+    signal counter   : integer;
+    signal delay_end : std_logic;
 
     -- Ready flag buffers
     signal DU_ADC_Ready_100_front : std_logic_vector(0 to pipeline_size - 1);
@@ -198,7 +193,7 @@ begin
                 DU_ADC_Ready_100_back  => DU_ADC_Ready_100_front,
                 -- DU_ADC Data
                 DU_ADC_Front_Dout      => DU_ADC_Front_Dout,
-                DU_ADC_Back_Dout       => DU_ADC_Front_Dout,
+                DU_ADC_Back_Dout       => DU_ADC_Back_Dout,
                 -- ADC SPI
 
                 o_ADC_SCK              => o_ADC_SCK, -- SPI Serial Clock
@@ -209,26 +204,26 @@ begin
             );
     end generate ADCs_gen;
 
---    ---------------------------------------------------------------
---    -- ADC Sequencer
---    ---------------------------------------------------------------
---
---    ADC_Sequencer : if enable_adc_sequencer = "01" generate
---        Inst_ADC_Sequencer : entity work.ADC_Sequencer
---            port map(
---                i_Rst_n             => i_Rst_n,
---                CLOCK_100_MHZ       => i_Clk_200MHz, --i_Clk,
---                clk_synchro         => i_Clk,
---                Enable              => ADC_Enable,
---                EP_Test_Mode_Enable => i_EP_Test_Mode_Enable,
---                Dout                => Dout, --	i_Din,--------------------------
---                Dout_RDY            => Dout_RDY, --	i_Din_RDY,----------------------
---                ADC_Conv_n          => open,
---                ADC_Sck             => open,
---                ADC_SDO             => '0',
---                o_Trig_out          => o_Trig_out
---            );
---    end generate ADC_Sequencer;
+    --    ---------------------------------------------------------------
+    --    -- ADC Sequencer
+    --    ---------------------------------------------------------------
+    --
+    --    ADC_Sequencer : if enable_adc_sequencer = "01" generate
+    --        Inst_ADC_Sequencer : entity work.ADC_Sequencer
+    --            port map(
+    --                i_Rst_n             => i_Rst_n,
+    --                CLOCK_100_MHZ       => i_Clk_200MHz, --i_Clk,
+    --                clk_synchro         => i_Clk,
+    --                Enable              => ADC_Enable,
+    --                EP_Test_Mode_Enable => i_EP_Test_Mode_Enable,
+    --                Dout                => Dout, --	i_Din,--------------------------
+    --                Dout_RDY            => Dout_RDY, --	i_Din_RDY,----------------------
+    --                ADC_Conv_n          => open,
+    --                ADC_Sck             => open,
+    --                ADC_SDO             => '0',
+    --                o_Trig_out          => o_Trig_out
+    --            );
+    --    end generate ADC_Sequencer;
 
     -----------------------------------------------------------------
     --  Sample Generator   
@@ -273,39 +268,46 @@ begin
 
     Inst_Event_Processor : entity work.Event_Processor
         port map(
-            i_Rst_n                  => i_Rst_n,
-            -- CLOCK
-
-            i_Clk                    => i_Clk,
+            i_Rst_n                     => i_Rst_n,
+            i_Clk                       => i_Clk,
+            --------------------------------------------------------------------------------------------
             -- ADC
-
-            i_DU_ADC_Ready_100_front => DU_ADC_Ready_100_front,
-            i_DU_ADC_Ready_100_back  => DU_ADC_Ready_100_front,
-            -- DU_ADC Data
-            DU_ADC_Front_Dout        => DU_ADC_Front_Dout,
-            DU_ADC_Back_Dout         => DU_ADC_Front_Dout,
-            --	o_EP_Division_Done    : out std_logic;
-
-            -- sum conf
-            sum_plus                 => sum_plus,
-            sum_minus                => sum_minus,
-            -- Out event processor
-
-            o_Event_B                => o_Event_B, --std_logic_vector(31 downto 0);
-            o_Event_A                => o_Event_A, --std_logic_vector(31 downto 0);
-
-            o_Event_Energy           => o_Event_Energy, --std_logic_vector(77 downto 0);
-            o_A_B                    => A_B, --signed(63 downto 0);
-
-            o_Energy_corrected_edge  => o_Energy_corrected_edge, --std_logic;
-            o_Energy_corrected       => o_Energy_corrected, --std_logic;            
-
-            o_Phase_enable           => o_Phase_enable, --std_logic;
-            o_div_read               => o_div_read, --std_logic;
-
-            EP_Capture_Filter_A_w    => o_EP_Capture_Filter_A_w, --std_logic_vector(31 downto 0);
-            EP_Capture_Filter_B_w    => o_EP_Capture_Filter_B_w --std_logic_vector(31 downto 0);      
-
+            --------------------------------------------------------------------------------------------         
+            i_DU_ADC_Ready_100_front    => DU_ADC_Ready_100_front,
+            i_DU_ADC_Ready_100_back     => DU_ADC_Ready_100_back,
+            DU_ADC_Front_Dout           => DU_ADC_Front_Dout,
+            DU_ADC_Back_Dout            => DU_ADC_Back_Dout,
+            --------------------------------------------------------------------------------------------
+            -- SUM
+            -------------------------------------------------------------------------------------------
+            sum_plus                    => sum_plus,
+            sum_minus                   => sum_minus,
+            -------------------------------
+            -- Out phase correction
+            -------------------------------
+            o_Event_B_front             => o_Event_B,
+            o_Event_A_front             => o_Event_A,
+            o_Event_Energy_front        => o_Event_Energy,
+            o_A_B_front                 => A_B,
+            o_div_read_front            => o_div_read,
+            -------------------------------
+            -- Out filter
+            -------------------------------
+            EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w,
+            EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w,
+            -------------------------------
+            -- Out phase correction
+            -------------------------------
+            o_Event_B_back              => open,
+            o_Event_A_back              => open,
+            o_Event_Energy_back         => open,
+            o_A_B_back                  => open,
+            o_div_read_back             => open,
+            -------------------------------
+            -- Out filter
+            -------------------------------
+            EP_Capture_Filter_back_A_w  => open,
+            EP_Capture_Filter_back_B_w  => open
         );
 
     -----------------------------------------------------------------

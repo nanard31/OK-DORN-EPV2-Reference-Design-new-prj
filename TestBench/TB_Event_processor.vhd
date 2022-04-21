@@ -370,7 +370,7 @@ begin
             -- Debug
             -------------------------------
             i_wire                => '1', --:in std_logic; 
-            o_Phase_enable        => open, --: out std_logic;
+            --o_Phase_enable        => open, --: out std_logic;
             o_div_read            => open, --: out std_logic;
             o_Peak_detected       => open, --: out std_logic;
             o_Peak_Value          => open, --: out std_logic_vector(15 downto 0);
