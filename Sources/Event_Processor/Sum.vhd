@@ -65,7 +65,7 @@ end Sum;
 architecture Behavioral of Sum is
 
     --	FSM
-    type FSM_ReadState is (load_ram_zero, load_ram_wait_rdy, load_ram_manage_ptr, wait_rdy, manage_ptr);
+    type FSM_ReadState is (load_ram_zero, set_pointer, wait_rdy, manage_ptr);
     signal case_FSM_ReadState : FSM_ReadState;
 
     --	RAM0B coef 
@@ -168,47 +168,18 @@ begin
 
                         if addra = (2 ** (addra'high) - 1) then
                             wea                <= "0";
-                            case_FSM_ReadState <= load_ram_wait_rdy;
+                            case_FSM_ReadState <= set_pointer;
                         end if;
 
-                    when load_ram_wait_rdy =>
-
-                        if i_Rdy(To_integer(unsigned(i_id))) = '1' then -- test before loading ram 
-                            --if i_id(0)='1' or i_id(1)='1' or i_id(2)='1' then  
-
-                            save_i_id <= i_id;
-                            o_id      <= i_id;
-
-                            wea   <= "1";
-                            dina  <= unsigned(i_Din); -- write data RAM first sample
-                            addra <= unsigned(i_id) & ptr_wr; -- set write RAM add 
-
-                            case_FSM_ReadState <= load_ram_manage_ptr;
-
+                    when set_pointer =>
+                        
+                        ptr_wr <= i_size-1;
+                        
+                        if i_Rdy(pipeline_size-1) = '1' then
+                        case_FSM_ReadState <= wait_rdy;    
                         end if;
-
-                    when load_ram_manage_ptr =>
-
-                        if unsigned(save_i_id) = pipeline_size - 1 and ptr_wr < i_size - 1 then -- set deep A0......A7 
-
-                            -- case increment pointer and continous RAM  loading
-                            ptr_wr             <= ptr_wr + 1;
-                            case_FSM_ReadState <= load_ram_wait_rdy;
-
-                        else
-
-                            if ptr_wr >= i_size - 1 then
-
-                                -- ram  loading finish
-                                case_FSM_ReadState <= wait_rdy;
-
-                            else
-
-                                case_FSM_ReadState <= load_ram_wait_rdy;
-
-                            end if;
-
-                        end if;
+                        
+ 
 
                     when wait_rdy =>
 
