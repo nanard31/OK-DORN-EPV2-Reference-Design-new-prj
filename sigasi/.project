@@ -132,20 +132,5 @@
 			<type>2</type>
 			<location>C:/TORTOISE_EP/OK-DORN-EPV2-Reference-Design-new-prj/sigasi/unisims</location>
 		</link>
-		<link>
-			<name>Cores/Buffering_Data_stub.vhdl</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Buffering_Data/Buffering_Data_stub.vhdl</locationURI>
-		</link>
-		<link>
-			<name>Cores/Generator_RAM_stub.vhdl</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Generator_RAM/Generator_RAM_stub.vhdl</locationURI>
-		</link>
-		<link>
-			<name>Cores/RAM_sum_stub.vhdl</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/RAM_sum/RAM_sum_stub.vhdl</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

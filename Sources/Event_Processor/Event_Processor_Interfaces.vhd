@@ -80,8 +80,12 @@ entity Event_Processor_Interfaces is
         --------------------------------------------------------------------------------------------
         -- SUM
         -------------------------------------------------------------------------------------------
-        i_sum_plus            : in    std_logic_vector(5 downto 0);
-        i_sum_minus           : in    std_logic_vector(5 downto 0);
+        i_sum_plus_A          : in    std_logic_vector(5 downto 0);
+        i_sum_zero_A          : in    std_logic_vector(5 downto 0);
+        i_sum_minus_A         : in    std_logic_vector(5 downto 0);
+        i_sum_plus_B          : in    std_logic_vector(5 downto 0);
+        i_sum_zero_B          : in    std_logic_vector(5 downto 0);
+        i_sum_minus_B         : in    std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
         -- ADC SPI
         --------------------------------------------------------------------------------------------
@@ -171,8 +175,12 @@ architecture Behavioral of Event_Processor_Interfaces is
 
     signal DU_ADC_Front_Dout : Array_8x16_type;
     signal DU_ADC_Back_Dout  : Array_8x16_type;
-    signal sum_plus          : std_logic_vector(5 downto 0);
-    signal sum_minus         : std_logic_vector(5 downto 0);
+    signal sum_plus_A        : std_logic_vector(5 downto 0);
+    signal sum_minus_A       : std_logic_vector(5 downto 0);
+    signal sum_zero_A        : std_logic_vector(5 downto 0);
+    signal sum_plus_B        : std_logic_vector(5 downto 0);
+    signal sum_minus_B       : std_logic_vector(5 downto 0);
+    signal sum_zero_B        : std_logic_vector(5 downto 0);
 
 begin
 
@@ -204,27 +212,6 @@ begin
             );
     end generate ADCs_gen;
 
-    --    ---------------------------------------------------------------
-    --    -- ADC Sequencer
-    --    ---------------------------------------------------------------
-    --
-    --    ADC_Sequencer : if enable_adc_sequencer = "01" generate
-    --        Inst_ADC_Sequencer : entity work.ADC_Sequencer
-    --            port map(
-    --                i_Rst_n             => i_Rst_n,
-    --                CLOCK_100_MHZ       => i_Clk_200MHz, --i_Clk,
-    --                clk_synchro         => i_Clk,
-    --                Enable              => ADC_Enable,
-    --                EP_Test_Mode_Enable => i_EP_Test_Mode_Enable,
-    --                Dout                => Dout, --	i_Din,--------------------------
-    --                Dout_RDY            => Dout_RDY, --	i_Din_RDY,----------------------
-    --                ADC_Conv_n          => open,
-    --                ADC_Sck             => open,
-    --                ADC_SDO             => '0',
-    --                o_Trig_out          => o_Trig_out
-    --            );
-    --    end generate ADC_Sequencer;
-
     -----------------------------------------------------------------
     --  Sample Generator   
     -----------------------------------------------------------------
@@ -247,13 +234,26 @@ begin
     label_connection_Universal_signal_generator : if enable_adc_sequencer = "00" generate
         DU_ADC_Front_Dout(0)      <= Dout;
         DU_ADC_Ready_100_front(0) <= Dout_RDY;
-        sum_plus                  <= i_sum_plus;
-        sum_minus                 <= i_sum_minus;
+        
+        sum_plus_A                <= i_sum_plus_A;
+        sum_minus_A               <= i_sum_minus_A;
+        sum_zero_A                <= i_sum_zero_A;
+
+        sum_plus_B  <= i_sum_plus_B;
+        sum_minus_B <= i_sum_minus_B;
+        sum_zero_B  <= i_sum_zero_B;
+
     end generate label_connection_Universal_signal_generator;
 
     label_connection_ADC : if enable_adc_sequencer = "10" generate
-        sum_plus  <= std_logic_vector(To_unsigned(7, 6));
-        sum_minus <= std_logic_vector(To_unsigned(7, 6));
+        sum_plus_A  <= std_logic_vector(To_unsigned(14, 6));
+        sum_minus_A <= std_logic_vector(To_unsigned(14, 6));
+        sum_zero_A  <= std_logic_vector(To_unsigned(1, 6));
+
+        sum_plus_B  <= std_logic_vector(To_unsigned(6, 6));
+        sum_minus_B <= std_logic_vector(To_unsigned(6, 6));
+        sum_zero_B  <= std_logic_vector(To_unsigned(1, 6));
+
     end generate label_connection_ADC;
 
     o_ADC_Generator_mode <= '0' when (i_wire = '0') else '1';
@@ -280,8 +280,12 @@ begin
             --------------------------------------------------------------------------------------------
             -- SUM
             -------------------------------------------------------------------------------------------
-            sum_plus                    => sum_plus,
-            sum_minus                   => sum_minus,
+            sum_plus_A                  => sum_plus_A,
+            sum_zero_A                  => sum_zero_A,
+            sum_minus_A                 => sum_minus_A,
+            sum_plus_B                  => sum_plus_B,
+            sum_zero_B                  => sum_zero_B,
+            sum_minus_B                 => sum_minus_B,
             -------------------------------
             -- Out phase correction
             -------------------------------

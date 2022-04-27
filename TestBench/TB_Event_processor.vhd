@@ -157,7 +157,7 @@ architecture Behavioral of TB_Event_processor is
     signal Gain_ramp : Gain_ramp_array;
 
     --constant Gain_ramp_cte :	Gain_ramp_array := (1,1,1,1,1,1,1,1); 
-    constant Gain_ramp_cte : Gain_ramp_array := (1, 0, 0, 0, 0, 0, 0, 0);
+    constant Gain_ramp_cte : Gain_ramp_array := (0, 1, 0, 1, 0, 1, 0, 1);
 
 begin
     -------------------------------------------------------
@@ -394,8 +394,15 @@ begin
             --------------------------------------------------------------------------------------------
             -- SUM
             -------------------------------------------------------------------------------------------
-            i_sum_plus            => std_logic_vector(To_unsigned(7, 6)),
-            i_sum_minus           => std_logic_vector(To_unsigned(7, 6)),
+            i_sum_plus_A            => std_logic_vector(To_unsigned(7, 6)),
+			i_sum_zero_A            => std_logic_vector(To_unsigned(7, 6)),
+            i_sum_minus_A           => std_logic_vector(To_unsigned(7, 6)),
+			
+			i_sum_plus_B            => std_logic_vector(To_unsigned(7, 6)),
+			i_sum_zero_B            => std_logic_vector(To_unsigned(7, 6)),
+            i_sum_minus_B           => std_logic_vector(To_unsigned(7, 6)),
+			
+			
             -- Science ADC
             o_ADC_SCK             => DU_ADC_SCK,
             o_ADC_CNV_n           => DU_ADC_CNV_n,
@@ -442,7 +449,7 @@ begin
                 if up(i) = '1' then
                     count(i) <= count(i) + 1; --ramp rising
                     --if count = 33 then	-- test 
-                    if count(i) = 3 then -- test
+                    if count(i) = 6 then -- test
                         up(i) <= '0';
                     end if;
                 else

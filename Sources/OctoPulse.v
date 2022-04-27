@@ -105,6 +105,15 @@ module OctoPulse(
     wire [64:0]  okEH;
 
     wire [31:0]  ep00wire;
+    
+    wire [31:0]  sum_plus_front;
+    wire [31:0]  sum_minus_front;
+    wire [31:0]  sum_zero_front;
+    
+    wire [31:0]  sum_plus_back;
+    wire [31:0]  sum_minus_back;
+    wire [31:0]  sum_zero_back;
+    
 
     wire         pipe_in_read/* synthesis keep */;
     wire [255:0] pipe_in_data/* synthesis keep */;
@@ -375,8 +384,12 @@ module OctoPulse(
     okWireOR # (.N(11)) wireOR (okEH, okEHx);
     okWireIn       wi00 (.okHE(okHE), .ep_addr(8'h00), .ep_dataout(ep00wire));
     okWireIn       wi01 (.okHE(okHE), .ep_addr(8'h01), .ep_dataout(Time_period));
-    okWireIn       wi02 (.okHE(okHE), .ep_addr(8'h02), .ep_dataout(sum_plus));
-    okWireIn       wi03 (.okHE(okHE), .ep_addr(8'h03), .ep_dataout(sum_minus));
+    okWireIn       wi02 (.okHE(okHE), .ep_addr(8'h02), .ep_dataout(sum_plus_front));
+    okWireIn       wi03 (.okHE(okHE), .ep_addr(8'h03), .ep_dataout(sum_minus_front));
+    okWireIn       wi04 (.okHE(okHE), .ep_addr(8'h04), .ep_dataout(sum_zero_front));
+    okWireIn       wi05 (.okHE(okHE), .ep_addr(8'h05), .ep_dataout(sum_plus_back));
+    okWireIn       wi06 (.okHE(okHE), .ep_addr(8'h06), .ep_dataout(sum_minus_back));
+    okWireIn       wi07 (.okHE(okHE), .ep_addr(8'h07), .ep_dataout(sum_zero_back));
 
     okWireIn       address_RAM_generator_wire  (.okHE(okHE), .ep_addr(8'h10), .ep_dataout(Address_generator));
     okWireIn       Data_RAM_generator_wire  (.okHE(okHE),  .ep_addr(8'h11), .ep_dataout(Data_generator));
@@ -589,8 +602,14 @@ module OctoPulse(
         //--------------------------------------------------------------------------------------------
         //-- SUM
         //-------------------------------------------------------------------------------------------
-        .i_sum_plus(sum_plus),
-        .i_sum_minus(sum_minus),
+        .i_sum_plus_A(sum_plus_front),
+        .i_sum_zero_A(sum_zero_front),
+        .i_sum_minus_A(sum_minus_front),
+        
+        .i_sum_plus_B(sum_plus_back),
+        .i_sum_zero_B(sum_zero_back),
+        .i_sum_minus_B(sum_minus_back),
+        
         //--------------------------------------------------------------------------------------------
         //-- ADC SPI
         //--------------------------------------------------------------------------------------------

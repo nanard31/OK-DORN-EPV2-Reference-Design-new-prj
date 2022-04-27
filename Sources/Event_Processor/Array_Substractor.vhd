@@ -43,48 +43,86 @@ entity Array_Substractor is
         -- Ready flag input
 
         i_Rdy_j         : in  std_logic_vector(0 to pipeline_size - 1);
+        i_Rdy_i         : in  std_logic_vector(0 to pipeline_size - 1);
         -- Data input
         i_Din_i         : in  signed(31 downto 0);
         i_Din_j         : in  signed(31 downto 0);
         i_id_i          : in  std_logic_vector(id_size downto 0);
         i_id_j          : in  std_logic_vector(id_size downto 0);
         -- output 
+        o_out_temp      : out Array_8x31_type
 
-        o_out           : out signed(31 downto 0);
-        o_rdy           : out std_logic_vector(0 to pipeline_size - 1);
-        o_id            : out std_logic_vector(id_size downto 0)
     );
 end Array_Substractor;
 
 architecture Behavioral of Array_Substractor is
 
-    signal i_Din_i_delayed : Array_8x31_type;
-
+    signal i_Din_i_delayed   : Array_8x31_type;
+    signal i_Din_i_delayed_2 : Array_8x31_type;
+    signal i_Din_i_o         : Array_8x31_type;
+    signal i_Din_j_o         : Array_8x31_type;
+    
 begin
 
     -----------------------------------------
     -- Process: comput substractor
     -----------------------------------------
-
     process(i_Rst_n, i_CLOCK_100_MHZ)
     begin
         if i_Rst_n = '0' then
-            o_out <= (others => '0');
-            o_rdy <= (others => '0');
-            o_id  <= (others => '0');
+ 
+            i_Din_i_o         <= (others => (others => '0'));
+            i_Din_i_delayed   <= (others => (others => '0'));
+            i_Din_i_delayed_2 <= (others => (others => '0'));
         else
             if rising_edge(i_CLOCK_100_MHZ) then
-
-                o_rdy <= i_Rdy_j;
-                o_id  <= i_id_j;
-
-                if i_Rdy_j(To_integer(unsigned(i_id_i))) = '1' and i_Rdy_j(To_integer(unsigned(i_id_j))) = '1' then
-                    o_out <= i_Din_i - i_Din_j;
+                i_Din_i_delayed   <= i_Din_i_o;
+                i_Din_i_delayed_2 <= i_Din_i_delayed;
+                if i_Rdy_i(To_integer(unsigned(i_id_i))) = '1' then
+                    i_Din_i_o(To_integer(unsigned(i_id_i))) <= i_Din_i;
                 end if;
 
             end if;
         end if;
     end process;
+
+    process(i_Rst_n, i_CLOCK_100_MHZ)
+    begin
+        if i_Rst_n = '0' then
+            i_Din_j_o <= (others => (others => '0'));
+        else
+            if rising_edge(i_CLOCK_100_MHZ) then
+                if i_Rdy_j(To_integer(unsigned(i_id_j))) = '1' then
+                    i_Din_j_o(To_integer(unsigned(i_id_j))) <= i_Din_j;
+                end if;
+
+            end if;
+        end if;
+    end process;
+   
+GEN_REG : for I in 0 to (pipeline_size - 1) generate
+    o_out_temp(I) <= i_Din_i_delayed_2(I) - i_Din_j_o(I);
+end generate GEN_REG;
+
+    --    GEN_REG : for I in 0 to (pipeline_size - 1) generate
+    --        process(i_Rst_n, i_CLOCK_100_MHZ)
+    --        begin
+    --            if i_Rst_n = '0' then
+    --                o_out_temp <= (others => (others => '0'));
+    --            else
+    --                if rising_edge(i_CLOCK_100_MHZ) then
+    --                    o_out_temp(0) <= i_Din_i_o(0) - i_Din_j_o(0);
+    --                    o_out_temp(1) <= i_Din_i_o(1) - i_Din_j_o(1);
+    --                    o_out_temp(2) <= i_Din_i_o(2) - i_Din_j_o(2);
+    --                    o_out_temp(3) <= i_Din_i_o(3) - i_Din_j_o(3);
+    --                    o_out_temp(4) <= i_Din_i_o(4) - i_Din_j_o(4);
+    --                    o_out_temp(5) <= i_Din_i_o(5) - i_Din_j_o(5);
+    --                    o_out_temp(6) <= i_Din_i_o(6) - i_Din_j_o(6);
+    --                    o_out_temp(7) <= i_Din_i_o(7) - i_Din_j_o(7);
+    --                end if;
+    --            end if;
+    --        end process;
+    --    end generate GEN_REG;
 
 end;
 

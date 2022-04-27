@@ -1,10 +1,10 @@
 ----------------------------------------------------------------------------------
--- Company: 
+-- Company: IRAP
 -- Engineer: 
 -- 
 -- Create Date: 16.08.2021 10:31:49
--- Design Name: 
--- Module Name: Filter_FAST_coef - Behavioral
+-- Design Name: Bernard BERTRAND
+-- Module Name: 
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 

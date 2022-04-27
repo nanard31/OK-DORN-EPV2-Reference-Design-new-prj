@@ -44,6 +44,7 @@ entity Filter is
         -- SUM
         -------------------------------------------------------------------------------------------
         sum_plus  : in  std_logic_vector(5 downto 0);
+        sum_zero  : in  std_logic_vector(5 downto 0);
         sum_minus : in  std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
         -- ADC
@@ -57,9 +58,9 @@ entity Filter is
         -------------------------------
         -- Out event processor
         -------------------------------
+        o_out_temp      : out Array_8x31_type
 
-        o_out     : out signed(31 downto 0);
-        o_rdy     : out std_logic_vector(0 to pipeline_size - 1)
+
     );
 end Filter;
 
@@ -85,7 +86,10 @@ architecture Behavioral of Filter is
     signal o_out_i : std_logic_vector(15 downto 0);
     signal o_id_i  : std_logic_vector(id_size downto 0);
 
-    signal o_id_j : std_logic_vector(id_size downto 0);
+    signal o_id_j  : std_logic_vector(id_size downto 0);
+    signal i_Rdy_j : std_logic_vector(0 to pipeline_size - 1);
+    signal i_id_j  : std_logic_vector(id_size downto 0);
+    signal i_Din_j : std_logic_vector(15 downto 0);
 
     -- out A filter		
 
@@ -121,6 +125,35 @@ begin
         );
 
     -----------------------------------------------------------------
+    -- SUM zero
+    -----------------------------------------------------------------
+
+    Inst_Sum_zero : entity work.Sum
+        port map(
+            i_Rst_n         => i_Rst_n,
+            i_CLOCK_100_MHZ => i_Clk,
+            -- Param
+
+            i_size          => unsigned(sum_zero),
+            -- data science input
+
+            -- Ready flag buffers
+            i_Rdy           => o_rdy_i,
+            i_id            => o_id_i,
+            -- DU_ADC Data
+            i_Din           => o_out_i,
+            -- to another Sum block
+
+            --o_out_array     => open,    --debug
+            o_rdy           => i_Rdy_j,
+            o_id            => i_id_j,
+            o_out           => i_Din_j,
+            --sum   
+            --o_sum_array     => open,    --debug
+            o_sum           => open
+        );
+
+    -----------------------------------------------------------------
     -- SUM j
     -----------------------------------------------------------------
 
@@ -134,10 +167,10 @@ begin
             -- data science input
 
             -- Ready flag buffers
-            i_Rdy           => o_rdy_i,
-            i_id            => o_id_i,
+            i_Rdy           => i_Rdy_j,
+            i_id            => i_id_j,
             -- DU_ADC Data
-            i_Din           => o_out_i,
+            i_Din           => i_Din_j,
             -- to another Sum block
 
             --o_out_array     => open,    --debug
@@ -160,14 +193,13 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- input
             i_Rdy_j         => o_rdy_j,
+            i_Rdy_i         => o_rdy_i,
             i_Din_i         => o_sum_i,
             i_Din_j         => o_sum_j,
             i_id_i          => o_id_i,
             i_id_j          => o_id_j,
             --out
-            o_out           => o_out,
-            o_rdy           => o_rdy,
-            o_id            => open
+            o_out_temp      => o_out_temp
         );
 
 end;

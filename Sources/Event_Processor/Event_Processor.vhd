@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------------------
 -- Company: IRAP
--- Engineer: TOUCHARD Pierre-Emmanuel Jérémy Noël André René Samuel Richard Serge Eric-Sophie José Lucile-Henry de la Maison Chauve
+-- Engineer: Bernard BERTRAND
 -- :
 -- Create Date:    08:30:00 01/04/2020 
 -- Design Name: 
@@ -58,8 +58,13 @@ entity Event_Processor is
         --------------------------------------------------------------------------------------------
         -- SUM
         -------------------------------------------------------------------------------------------
-        sum_plus                    : in    std_logic_vector(5 downto 0);
-        sum_minus                   : in    std_logic_vector(5 downto 0);
+        sum_plus_A                    : in    std_logic_vector(5 downto 0);
+        sum_zero_A                    : in    std_logic_vector(5 downto 0);
+        sum_minus_A                   : in    std_logic_vector(5 downto 0);
+        
+        sum_plus_B                    : in    std_logic_vector(5 downto 0);
+        sum_zero_B                    : in    std_logic_vector(5 downto 0);
+        sum_minus_B                   : in    std_logic_vector(5 downto 0);
         -------------------------------
         -- Out phase correction front
         -------------------------------
@@ -113,6 +118,11 @@ architecture Behavioral of Event_Processor is
 
     signal EP_Capture_Filter_front_B : signed(31 downto 0);
     signal EP_Capture_Filter_back_B  : signed(31 downto 0);
+    
+    signal o_out_temp_front_A : Array_8x31_type;
+    signal o_out_temp_back_A : Array_8x31_type;
+    signal o_out_temp_front_B : Array_8x31_type;
+    signal o_out_temp_back_B : Array_8x31_type;
 
     --    signal EP_Capture_Filter_front_A_w : std_logic_vector(31 downto 0);
     --    signal EP_Capture_Filter_front_B_w : std_logic_vector(31 downto 0);
@@ -159,8 +169,9 @@ begin
             i_Clk     => i_Clk,
             -- conf
             -- sum conf
-            sum_plus  => sum_plus,
-            sum_minus => sum_minus,
+            sum_plus  => sum_plus_A,
+            sum_zero  => sum_zero_A,
+            sum_minus => sum_minus_A,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
@@ -174,8 +185,7 @@ begin
             -- Out filter
             -------------------------------
 
-            o_out     => EP_Capture_Filter_front_A,
-            o_rdy     => open
+            o_out_temp => o_out_temp_front_A
         );
 
     --------------------------------------------------------------------------------------------
@@ -192,8 +202,9 @@ begin
             i_Clk     => i_Clk,
             -- conf
             -- sum conf
-            sum_plus  => sum_plus,
-            sum_minus => sum_minus,
+            sum_plus  => sum_plus_B,
+            sum_zero  => sum_zero_B,
+            sum_minus => sum_minus_B,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
@@ -207,12 +218,11 @@ begin
             -- Out filter
             -------------------------------
 
-            o_out     => EP_Capture_Filter_front_B,
-            o_rdy     => open
+             o_out_temp => o_out_temp_front_B
         );
 
-    EP_Capture_Filter_front_A_w <= std_logic_vector(EP_Capture_Filter_front_A);
-    EP_Capture_Filter_front_B_w <= std_logic_vector(EP_Capture_Filter_front_B);
+    EP_Capture_Filter_front_A_w <= std_logic_vector(o_out_temp_front_A(0));
+    EP_Capture_Filter_front_B_w <= std_logic_vector(o_out_temp_front_B(0));
 
     -----------------------------------------------------------------
     -- Energy correction front
@@ -277,8 +287,9 @@ begin
             i_Clk     => i_Clk,
             -- conf
             -- sum conf
-            sum_plus  => sum_plus,
-            sum_minus => sum_minus,
+            sum_plus  => sum_plus_A,
+            sum_zero  => sum_zero_A,
+            sum_minus => sum_minus_A,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
@@ -288,8 +299,7 @@ begin
             -------------------------------
             -- Out filter
             -------------------------------            
-            o_out     => EP_Capture_Filter_back_A,
-            o_rdy     => open
+           o_out_temp => o_out_temp_back_A
         );
 
     --------------------------------------------------------------------------------------------
@@ -306,8 +316,9 @@ begin
             i_Clk     => i_Clk,
             -- conf
             -- sum conf
-            sum_plus  => sum_plus,
-            sum_minus => sum_minus,
+            sum_plus  => sum_plus_B,
+            sum_zero  => sum_zero_B,
+            sum_minus => sum_minus_B,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
@@ -321,12 +332,11 @@ begin
             -- Out filter
             -------------------------------
 
-            o_out     => EP_Capture_Filter_back_B,
-            o_rdy     => open
+           o_out_temp => o_out_temp_back_B
         );
 
-    EP_Capture_Filter_back_A_w <= std_logic_vector(EP_Capture_Filter_back_A);
-    EP_Capture_Filter_back_B_w <= std_logic_vector(EP_Capture_Filter_back_B);
+    EP_Capture_Filter_back_A_w <= std_logic_vector(o_out_temp_back_A(0));
+    EP_Capture_Filter_back_B_w <= std_logic_vector(o_out_temp_back_B(0));
 
     -----------------------------------------------------------------
     -- Energy correction back
