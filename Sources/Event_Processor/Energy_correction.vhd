@@ -45,13 +45,8 @@ entity Energy_correction is
         --	output result	
         o_Event_Energy            : out std_logic_vector(77 downto 0);
         o_A_B                     : out signed(63 downto 0);
-        -- out
-        --		o_Energy_corrected_edge	: out std_logic;
-        --		o_Energy_corrected		: out std_logic;
-
-        --o_Phase_enable            : out std_logic; -- digital pulse energy correction is applied
-        o_div_read                : out std_logic; -- means result has been read
-        buffer_B_A_division_start : out std_logic
+        o_div_read                : out std_logic -- means result has been read
+        
     );
 end Energy_correction;
 
@@ -72,12 +67,6 @@ architecture Behavioral of Energy_correction is
     --signal Phase_enable : std_logic;
 
     signal A_B        : signed(63 downto 0);
-    signal A_B_16bits : signed(16 downto 0);
-
-    signal max_A_detected     : std_logic;
-    signal max_A_detected_reg : std_logic;
-
-    signal Energy_corrected : std_logic;
 
     -------------------------------
     -- coef tab
@@ -114,21 +103,17 @@ begin
             o_EP_Capture_Filter_B_w_old <= (others => '0');
             i_Event_A                   <= (others => '0');
             i_Event_B                   <= (others => '0');
-            max_A_detected              <= '0';
-            max_A_detected_reg          <= '0';
+
             B_A_division_start          <= '0';
 
             --Phase_enable     <= '0';
             div_read         <= '0';
             --division_done_r <= '0';
             Phase_A_B        := x"FFFFFFFFFFFFFFFF";
-            A_B_16bits       <= (others => '0');
+
             A_B              <= (others => '0');
             o_Event_Energy   <= (others => '0');
-            --rising_falling <= '1';
-            Energy_corrected <= '0';
-        --o_Energy_corrected_edge <= '0';
-
+ 
         elsif rising_edge(i_CLOCK_100_MHZ) then
 
             o_EP_Capture_Filter_A_w_old <= i_EP_Capture_Filter_A_w;
@@ -141,7 +126,7 @@ begin
                 when Event_detect =>
 
                     div_read         <= '0';
-                    Energy_corrected <= '0';
+
 
                     if signed(o_EP_Capture_Filter_A_w_old) > signed(i_EP_Capture_Filter_A_w) and signed(i_EP_Capture_Filter_A_w) > to_signed(100, 32) then
                         i_Event_A          <= o_EP_Capture_Filter_A_w_old;
@@ -159,14 +144,12 @@ begin
                         --Phase_enable <= '1';
                         Phase_A_B  := signed(Intermediate_A_B);
                         A_B        <= Phase_A_B;
-                        A_B_16bits <= Phase_A_B(32 downto 16);
+ 
                     end if;
 
                 when Energy_correction =>
 
-                    --Phase_enable <= '0';
 
-                    Energy_corrected <= '1';
 
                     o_Event_Energy <= std_logic_vector(Shifted_MAX_A * to_signed(Coeff_data, 24));
 
@@ -181,8 +164,7 @@ begin
 
     o_Event_A                 <= i_Event_A;
     o_Event_B                 <= i_Event_B;
-    --o_Energy_corrected	<= Energy_corrected;	
-    buffer_B_A_division_start <= B_A_division_start;
+ 
     -----------------------------------------------------------------
     -- divider
     -----------------------------------------------------------------	

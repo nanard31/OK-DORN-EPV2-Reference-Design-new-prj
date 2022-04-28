@@ -38,26 +38,28 @@ entity Sum is
 
         i_Rst_n         : in  std_logic;
         i_CLOCK_100_MHZ : in  std_logic;
+        
         -- Param
 
         i_size          : in  unsigned(5 downto 0);
+        
         -- data science input
 
         -- Ready flag input
+        
         i_Rdy           : in  std_logic_vector(0 to pipeline_size - 1);
         i_id            : in  std_logic_vector(id_size downto 0);
         -- Data input
         i_Din           : in  std_logic_vector(15 downto 0);
+        
         -- output to another Sum block
-
-        --o_out_array     : out   Array_8x16_type; --debug
 
         o_rdy           : out std_logic_vector(0 to pipeline_size - 1);
         o_id            : out std_logic_vector(id_size downto 0);
         o_out           : out std_logic_vector(15 downto 0);
+        
         -- sum	
 
-        --o_sum_array     : inout Array_8x31_type; --debug
         o_sum           : out signed(31 downto 0)
     );
 end Sum;
@@ -172,14 +174,12 @@ begin
                         end if;
 
                     when set_pointer =>
-                        
-                        ptr_wr <= i_size-1;
-                        
-                        if i_Rdy(pipeline_size-1) = '1' then
-                        case_FSM_ReadState <= wait_rdy;    
+
+                        ptr_wr <= i_size - 1;
+
+                        if i_Rdy(pipeline_size - 1) = '1' then
+                            case_FSM_ReadState <= wait_rdy;
                         end if;
-                        
- 
 
                     when wait_rdy =>
 

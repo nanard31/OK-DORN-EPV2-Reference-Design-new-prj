@@ -46,7 +46,7 @@ entity EP_in_mux is
         i_Din           : in    Array_8x16_type;
         o_Rdy           : out   std_logic_vector(0 to pipeline_size - 1);
         o_Din           : out   std_logic_vector(15 downto 0);
-        o_id            : inout std_logic_vector(id_size downto 0)
+        o_id            : out std_logic_vector(id_size downto 0)
     );
 end EP_in_mux;
 

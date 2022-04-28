@@ -43,9 +43,9 @@ entity Filter is
         --------------------------------------------------------------------------------------------
         -- SUM
         -------------------------------------------------------------------------------------------
-        sum_plus  : in  std_logic_vector(5 downto 0);
-        sum_zero  : in  std_logic_vector(5 downto 0);
-        sum_minus : in  std_logic_vector(5 downto 0);
+        i_sum_plus  : in  std_logic_vector(5 downto 0);
+        i_sum_zero  : in  std_logic_vector(5 downto 0);
+        i_sum_minus : in  std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
         -- ADC
         --------------------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => unsigned(sum_plus),
+            i_size          => unsigned(i_sum_plus),
             -- data science input
 
             -- Ready flag buffers
@@ -134,7 +134,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => unsigned(sum_zero),
+            i_size          => unsigned(i_sum_zero),
             -- data science input
 
             -- Ready flag buffers
@@ -163,7 +163,7 @@ begin
             i_CLOCK_100_MHZ => i_Clk,
             -- Param
 
-            i_size          => unsigned(sum_minus),
+            i_size          => unsigned(i_sum_minus),
             -- data science input
 
             -- Ready flag buffers

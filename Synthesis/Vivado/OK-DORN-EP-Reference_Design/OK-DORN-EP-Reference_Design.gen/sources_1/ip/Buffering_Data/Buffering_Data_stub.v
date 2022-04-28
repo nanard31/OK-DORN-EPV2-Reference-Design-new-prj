@@ -1,10 +1,10 @@
 // Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
-// Date        : Thu Apr 28 11:55:19 2022
+// Date        : Thu Apr 28 11:55:18 2022
 // Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode synth_stub
-//               c:/TORTOISE_EP/OK-DORN-EPV2-Reference-Design-new-prj/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/Buffering_Data/Buffering_Data_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top Buffering_Data -prefix
+//               Buffering_Data_ Buffering_Data_stub.v
 // Design      : Buffering_Data
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a75tfgg484-1

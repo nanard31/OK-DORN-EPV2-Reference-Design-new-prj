@@ -4,7 +4,7 @@
 -- :
 -- Create Date:    08:30:00 01/04/2020 
 -- Design Name: 
--- Module Name:    Dorn_Top - Behavioral 
+-- Module Name:    Event_Processor EPV2
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -101,9 +101,9 @@ end Event_Processor;
 
 architecture Behavioral of Event_Processor is
 
-    signal o_Rdy_front, o_Rdy_back : std_logic_vector(0 to pipeline_size - 1);
-    signal o_Din_front, o_Din_back : std_logic_vector(15 downto 0);
-    signal o_id_front, o_id_back   : std_logic_vector(id_size downto 0);
+    signal Rdy_front, Rdy_back : std_logic_vector(0 to pipeline_size - 1);
+    signal Din_front, Din_back : std_logic_vector(15 downto 0);
+    signal id_front, id_back   : std_logic_vector(id_size downto 0);
 
     signal o_out_temp_front_A : Array_8x31_type;
     signal o_out_temp_back_A  : Array_8x31_type;
@@ -136,9 +136,9 @@ begin
             i_Rdy           => i_DU_ADC_Ready_100_front,
             i_Din           => i_DU_ADC_Front_Dout,
             --filter
-            o_Rdy           => o_Rdy_front,
-            o_Din           => o_Din_front,
-            o_id            => o_id_front
+            o_Rdy           => Rdy_front,
+            o_Din           => Din_front,
+            o_id            => id_front
         );
 
     --------------------------------------------------------------------------------------------
@@ -155,18 +155,18 @@ begin
             i_Clk      => i_Clk,
             -- conf
             -- sum conf
-            sum_plus   => i_sum_plus_A,
-            sum_zero   => i_sum_zero_A,
-            sum_minus  => i_sum_minus_A,
+            i_sum_plus   => i_sum_plus_A,
+            i_sum_zero   => i_sum_zero_A,
+            i_sum_minus  => i_sum_minus_A,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
 
             -- Ready flag buffers
-            i_Rdy      => o_Rdy_front,
-            i_id       => o_id_front,
+            i_Rdy      => Rdy_front,
+            i_id       => id_front,
             -- DU_ADC Data
-            i_Din      => o_Din_front,
+            i_Din      => Din_front,
             -------------------------------
             -- Out filter
             -------------------------------
@@ -188,18 +188,18 @@ begin
             i_Clk      => i_Clk,
             -- conf
             -- sum conf
-            sum_plus   => i_sum_plus_B,
-            sum_zero   => i_sum_zero_B,
-            sum_minus  => i_sum_minus_B,
+            i_sum_plus   => i_sum_plus_B,
+            i_sum_zero   => i_sum_zero_B,
+            i_sum_minus  => i_sum_minus_B,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
 
             -- Ready flag buffers
-            i_Rdy      => o_Rdy_front,
-            i_id       => o_id_front,
+            i_Rdy      => Rdy_front,
+            i_id       => id_front,
             -- DU_ADC Data
-            i_Din      => o_Din_front,
+            i_Din      => Din_front,
             -------------------------------
             -- Out filter
             -------------------------------
@@ -232,12 +232,8 @@ begin
             --  output result   
             o_Event_Energy            => o_Event_Energy_front,
             o_A_B                     => o_A_B_front,
-            -- out
-            --o_Energy_corrected_edge   => o_Energy_corrected_edge,
-            --o_Energy_corrected        => o_Energy_corrected,
-            --o_Phase_enable            => o_Phase_enable, -- digital pulse energy correction is applied
-            o_div_read                => o_div_read_front, -- means result has been read   
-            buffer_B_A_division_start => open
+            o_div_read                => o_div_read_front -- means result has been read   
+            
         );
 
     ---------------------------------------------------------------------------------------------------------------------
@@ -258,9 +254,9 @@ begin
             i_Rdy           => i_DU_ADC_Ready_100_front,
             i_Din           => i_DU_ADC_Back_Dout,
             --filter
-            o_Rdy           => o_Rdy_back,
-            o_Din           => o_Din_back,
-            o_id            => o_id_back
+            o_Rdy           => Rdy_back,
+            o_Din           => Din_back,
+            o_id            => id_back
         );
 
     --------------------------------------------------------------------------------------------
@@ -276,15 +272,15 @@ begin
             i_Clk      => i_Clk,
             -- conf
             -- sum conf
-            sum_plus   => i_sum_plus_A,
-            sum_zero   => i_sum_zero_A,
-            sum_minus  => i_sum_minus_A,
+            i_sum_plus   => i_sum_plus_A,
+            i_sum_zero   => i_sum_zero_A,
+            i_sum_minus  => i_sum_minus_A,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
-            i_Rdy      => o_Rdy_back,
-            i_id       => o_id_back,
-            i_Din      => o_Din_back,
+            i_Rdy      => Rdy_back,
+            i_id       => id_back,
+            i_Din      => Din_back,
             -------------------------------
             -- Out filter
             -------------------------------            
@@ -305,18 +301,18 @@ begin
             i_Clk      => i_Clk,
             -- conf
             -- sum conf
-            sum_plus   => i_sum_plus_B,
-            sum_zero   => i_sum_zero_B,
-            sum_minus  => i_sum_minus_B,
+            i_sum_plus   => i_sum_plus_B,
+            i_sum_zero   => i_sum_zero_B,
+            i_sum_minus  => i_sum_minus_B,
             --------------------------------------------------------------------------------------------
             -- ADC
             --------------------------------------------------------------------------------------------
 
             -- Ready flag buffers
-            i_Rdy      => o_Rdy_back,
-            i_id       => o_id_back,
+            i_Rdy      => Rdy_back,
+            i_id       => id_back,
             -- DU_ADC Data
-            i_Din      => o_Din_back,
+            i_Din      => Din_back,
             -------------------------------
             -- Out filter
             -------------------------------
@@ -349,12 +345,8 @@ begin
             --  output result   
             o_Event_Energy            => o_Event_Energy_back,
             o_A_B                     => o_A_B_back,
-            -- out
-            --o_Energy_corrected_edge   => o_Energy_corrected_edge,
-            --o_Energy_corrected        => o_Energy_corrected,
-            --o_Phase_enable            => o_Phase_enable, -- digital pulse energy correction is applied
-            o_div_read                => o_div_read_back, -- means result has been read   
-            buffer_B_A_division_start => open
+            o_div_read                => o_div_read_back -- means result has been read   
+           
         );
 
 end architecture Behavioral;
