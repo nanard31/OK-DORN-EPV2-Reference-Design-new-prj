@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------------------
 -- Company: IRAP
--- Engineer: TOUCHARD Pierre-Emmanuel Jérémy Noël André René Samuel Richard Serge Eric-Sophie José Lucile-Henry de la Maison Chauve
+-- Engineer: Bernard BERTRAND
 -- :
 -- Create Date:    08:30:00 01/04/2020 
 -- Design Name: 
@@ -234,10 +234,10 @@ begin
     label_connection_Universal_signal_generator : if enable_adc_sequencer = "00" generate
         DU_ADC_Front_Dout(0)      <= Dout;
         DU_ADC_Ready_100_front(0) <= Dout_RDY;
-        
-        sum_plus_A                <= i_sum_plus_A;
-        sum_minus_A               <= i_sum_minus_A;
-        sum_zero_A                <= i_sum_zero_A;
+
+        sum_plus_A  <= i_sum_plus_A;
+        sum_minus_A <= i_sum_minus_A;
+        sum_zero_A  <= i_sum_zero_A;
 
         sum_plus_B  <= i_sum_plus_B;
         sum_minus_B <= i_sum_minus_B;
@@ -268,50 +268,50 @@ begin
 
     Inst_Event_Processor : entity work.Event_Processor
         port map(
-            i_Rst_n                     => i_Rst_n,
-            i_Clk                       => i_Clk,
+            i_Rst_n                       => i_Rst_n,
+            i_Clk                         => i_Clk,
             --------------------------------------------------------------------------------------------
-            -- ADC
+            -- input from ADC
             --------------------------------------------------------------------------------------------         
-            i_DU_ADC_Ready_100_front    => DU_ADC_Ready_100_front,
-            i_DU_ADC_Ready_100_back     => DU_ADC_Ready_100_back,
-            DU_ADC_Front_Dout           => DU_ADC_Front_Dout,
-            DU_ADC_Back_Dout            => DU_ADC_Back_Dout,
+            i_DU_ADC_Ready_100_front      => DU_ADC_Ready_100_front,
+            i_DU_ADC_Ready_100_back       => DU_ADC_Ready_100_back,
+            i_DU_ADC_Front_Dout           => DU_ADC_Front_Dout,
+            i_DU_ADC_Back_Dout            => DU_ADC_Back_Dout,
             --------------------------------------------------------------------------------------------
-            -- SUM
+            -- input param SUM from GSE 
             -------------------------------------------------------------------------------------------
-            sum_plus_A                  => sum_plus_A,
-            sum_zero_A                  => sum_zero_A,
-            sum_minus_A                 => sum_minus_A,
-            sum_plus_B                  => sum_plus_B,
-            sum_zero_B                  => sum_zero_B,
-            sum_minus_B                 => sum_minus_B,
+            i_sum_plus_A                  => sum_plus_A,
+            i_sum_zero_A                  => sum_zero_A,
+            i_sum_minus_A                 => sum_minus_A,
+            i_sum_plus_B                  => sum_plus_B,
+            i_sum_zero_B                  => sum_zero_B,
+            i_sum_minus_B                 => sum_minus_B,
             -------------------------------
-            -- Out phase correction
+            -- Out phase correction FRONT
             -------------------------------
-            o_Event_B_front             => o_Event_B,
-            o_Event_A_front             => o_Event_A,
-            o_Event_Energy_front        => o_Event_Energy,
-            o_A_B_front                 => A_B,
-            o_div_read_front            => o_div_read,
+            o_Event_B_front               => o_Event_B, -- max B on pulse peak.
+            o_Event_A_front               => o_Event_A, -- max A on pulse peak.
+            o_Event_Energy_front          => o_Event_Energy, -- wide bus energy.
+            o_A_B_front                   => A_B, -- phase (phi).
+            o_div_read_front              => o_div_read, -- from div to start write fifo process before pipe out. 
             -------------------------------
-            -- Out filter
+            -- Out filter FRONT
             -------------------------------
-            EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w,
-            EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w,
+            o_EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w, -- analog filter A output 
+            o_EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w, -- analog filter B output
             -------------------------------
-            -- Out phase correction
+            -- Out phase correction BACK
             -------------------------------
-            o_Event_B_back              => open,
-            o_Event_A_back              => open,
-            o_Event_Energy_back         => open,
-            o_A_B_back                  => open,
-            o_div_read_back             => open,
+            o_Event_B_back                => open, -- max B on pulse peak.
+            o_Event_A_back                => open,
+            o_Event_Energy_back           => open,
+            o_A_B_back                    => open,
+            o_div_read_back               => open,
             -------------------------------
-            -- Out filter
+            -- Out filter BACK
             -------------------------------
-            EP_Capture_Filter_back_A_w  => open,
-            EP_Capture_Filter_back_B_w  => open
+            o_EP_Capture_Filter_back_A_w  => open,
+            o_EP_Capture_Filter_back_B_w  => open
         );
 
     -----------------------------------------------------------------

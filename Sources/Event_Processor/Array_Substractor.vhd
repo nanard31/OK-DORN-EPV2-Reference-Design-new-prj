@@ -76,8 +76,10 @@ begin
             i_Din_i_delayed_2 <= (others => (others => '0'));
         else
             if rising_edge(i_CLOCK_100_MHZ) then
+                
                 i_Din_i_delayed   <= i_Din_i_o;
-                i_Din_i_delayed_2 <= i_Din_i_delayed;
+                i_Din_i_delayed_2 <= i_Din_i_delayed; -- to compensate delay of sum zero
+                
                 if i_Rdy_i(To_integer(unsigned(i_id_i))) = '1' then
                     i_Din_i_o(To_integer(unsigned(i_id_i))) <= i_Din_i;
                 end if;

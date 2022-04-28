@@ -38,8 +38,8 @@ sendToHSL_setWireIn(2, 14)//sum_plus_A
 sendToHSL_setWireIn(3, 14)//sum_minus_A
 sendToHSL_setWireIn(4, 1)//sum_zero_A
 
-sendToHSL_setWireIn(5, 4)//sum_plus_B
-sendToHSL_setWireIn(6, 4)//sum_minus_B
+sendToHSL_setWireIn(5, 5)//sum_plus_B
+sendToHSL_setWireIn(6, 5)//sum_minus_B
 sendToHSL_setWireIn(7, 1)//sum_zero_B
 waitMs(10)
 sendToHSL_setWireIn(0, 4)//reset
