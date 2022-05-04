@@ -178,7 +178,7 @@ begin
     -- filter front B
     --------------------------------------------------------------------------------------------
 
-    Inst_Filter_front_B : entity work.Filter
+    Inst_Filter_front_B : entity work.EP_PM_Filter_B
         port map(
             i_Rst_n    => i_Rst_n,
             -------------------------------

@@ -38,6 +38,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Array_Substractor.vhd</locationURI>
 		</link>
 		<link>
+			<name>Array_Substractor_Filter_B.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Array_Substractor_Filter_B.vhd</locationURI>
+		</link>
+		<link>
 			<name>Coeff_Table.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Coeff_Table.vhd</locationURI>
@@ -51,6 +56,16 @@
 			<name>DORN_EP_Package.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/DORN_EP_Package.vhd</locationURI>
+		</link>
+		<link>
+			<name>EP_PM_Filter_B.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_Filter_B.vhd</locationURI>
+		</link>
+		<link>
+			<name>EP_PM_Sum.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_Sum.vhd</locationURI>
 		</link>
 		<link>
 			<name>EP_in_mux.vhd</name>
@@ -76,6 +91,11 @@
 			<name>Filter.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Filter.vhd</locationURI>
+		</link>
+		<link>
+			<name>Filter_B.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/Filter_B.vhd</locationURI>
 		</link>
 		<link>
 			<name>OctoPulse.v</name>

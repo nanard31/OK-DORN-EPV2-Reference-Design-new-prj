@@ -32,7 +32,7 @@ use work.DORN_EP_Package.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity Array_Substractor is
+entity Array_Substractor_Filter_B is
     port(
         -- Reset and Clock
 
@@ -53,9 +53,9 @@ entity Array_Substractor is
         o_out_temp      : out Array_8x31_type
 
     );
-end Array_Substractor;
+end Array_Substractor_Filter_B;
 
-architecture Behavioral of Array_Substractor is
+architecture Behavioral of Array_Substractor_Filter_B is
 
     signal i_Din_i_delayed   : Array_8x31_type;
     signal i_Din_i_delayed_2 : Array_8x31_type;
@@ -113,7 +113,7 @@ begin
                    o_out_temp <= (others => (others => '0'));
                else
                    if rising_edge(i_CLOCK_100_MHZ) then
-                       o_out_temp(0) <= i_Din_i_delayed_2(0) - i_Din_j_o(0);
+                       o_out_temp(0) <= i_Din_i_delayed(0) - i_Din_j_o(0);
    --                    o_out_temp(1) <= i_Din_i_o(1) - i_Din_j_o(1);
    --                    o_out_temp(2) <= i_Din_i_o(2) - i_Din_j_o(2);
    --                    o_out_temp(3) <= i_Din_i_o(3) - i_Din_j_o(3);

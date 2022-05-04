@@ -250,9 +250,9 @@ begin
         sum_minus_A <= std_logic_vector(To_unsigned(14, 6));
         sum_zero_A  <= std_logic_vector(To_unsigned(1, 6));
 
-        sum_plus_B  <= std_logic_vector(To_unsigned(6, 6));
-        sum_minus_B <= std_logic_vector(To_unsigned(6, 6));
-        sum_zero_B  <= std_logic_vector(To_unsigned(1, 6));
+        sum_plus_B  <= std_logic_vector(To_unsigned(44, 6));
+        sum_minus_B <= std_logic_vector(To_unsigned(14, 6));
+        sum_zero_B  <= std_logic_vector(To_unsigned(14, 6));
 
     end generate label_connection_ADC;
 

@@ -32,7 +32,7 @@ use work.DORN_EP_Package.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity Sum is
+entity EP_PM_Sum is
     port(
         -- Reset and Clock
 
@@ -62,9 +62,9 @@ entity Sum is
 
         o_sum           : out signed(31 downto 0)
     );
-end Sum;
+end EP_PM_Sum;
 
-architecture Behavioral of Sum is
+architecture Behavioral of EP_PM_Sum is
 
     --	FSM
     type FSM_ReadState is (load_ram_zero, set_pointer, wait_rdy, manage_ptr);

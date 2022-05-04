@@ -31,7 +31,7 @@ use work.DORN_EP_Package.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity Filter is
+entity EP_PM_Filter_B is
     port(
         i_Rst_n   : in  std_logic;
         -------------------------------
@@ -62,9 +62,9 @@ entity Filter is
 
 
     );
-end Filter;
+end EP_PM_Filter_B;
 
-architecture Behavioral of Filter is
+architecture Behavioral of EP_PM_Filter_B is
 
     -- to another Sum block
 
@@ -90,6 +90,10 @@ architecture Behavioral of Filter is
     signal i_Rdy_j : std_logic_vector(0 to pipeline_size - 1);
     signal i_id_j  : std_logic_vector(id_size downto 0);
     signal i_Din_j : std_logic_vector(15 downto 0);
+    signal o_rdy_zero : std_logic_vector(0 to pipeline_size - 1);
+    signal o_id_zero : std_logic_vector(id_size downto 0);
+    signal o_out_zero : std_logic_vector(15 downto 0);
+    signal o_sum_zero : signed(31 downto 0);
 
     -- out A filter		
 
@@ -121,7 +125,7 @@ begin
             o_out           => o_out_i,
             --sum	
             --o_sum_array     => open,    --debug
-            o_sum           => o_sum_i
+            o_sum           => open
         );
 
     -----------------------------------------------------------------
@@ -145,12 +149,12 @@ begin
             -- to another Sum block
 
             --o_out_array     => open,    --debug
-            o_rdy           => i_Rdy_j,
-            o_id            => i_id_j,
-            o_out           => i_Din_j,
+            o_rdy           => o_rdy_zero,
+            o_id            => o_id_zero,
+            o_out           => o_out_zero,
             --sum   
             --o_sum_array     => open,    --debug
-            o_sum           => open
+            o_sum           => o_sum_zero
         );
 
     -----------------------------------------------------------------
@@ -167,10 +171,10 @@ begin
             -- data science input
 
             -- Ready flag buffers
-            i_Rdy           => i_Rdy_j,
-            i_id            => i_id_j,
+            i_Rdy           => o_rdy_zero,
+            i_id            => o_id_zero,
             -- DU_ADC Data
-            i_Din           => i_Din_j,
+            i_Din           => o_out_zero,
             -- to another Sum block
 
             --o_out_array     => open,    --debug
@@ -186,17 +190,17 @@ begin
     -- SUB
     -----------------------------------------------------------------
 
-    Inst_Array_Substractor : entity work.Array_Substractor
+    Inst_Array_Substractor : entity work.Array_Substractor_Filter_B
         port map(
             -- global
             i_Rst_n         => i_Rst_n,
             i_CLOCK_100_MHZ => i_Clk,
             -- input
             i_Rdy_j         => o_rdy_j,
-            i_Rdy_i         => o_rdy_i,
-            i_Din_i         => o_sum_i,
+            i_Rdy_i         => o_rdy_zero,
+            i_Din_i         => o_sum_zero,
             i_Din_j         => o_sum_j,
-            i_id_i          => o_id_i,
+            i_id_i          => o_id_zero,
             i_id_j          => o_id_j,
             --out
             o_out_temp      => o_out_temp
