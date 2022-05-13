@@ -33,20 +33,29 @@ use IEEE.NUMERIC_STD.ALL;
 entity Energy_correction is
     port(
         -- Reset and Clock
-        i_Rst_n                   : in  std_logic;
-        i_CLOCK_100_MHZ           : in  std_logic;
+        i_Rst_n        : in  std_logic;
+        i_Clk          : in  std_logic;
+        i_Threshold    : in  std_logic_vector(31 downto 0);
+        -- Memory bus
+
+        i_Base_Address : in  STD_LOGIC_VECTOR(7 downto 0);
+        i_Data         : in  STD_LOGIC_VECTOR(16 downto 0);
+        i_Address      : in  STD_LOGIC_VECTOR(15 downto 0);
+        i_Wr           : in  STD_LOGIC;
+        -- ADC Data Ready
+
+        i_Din_Rdy      : in  std_logic;
         -- input EP capture filter
 
-        i_EP_Capture_Filter_A_w   : in  std_logic_vector(31 downto 0);
-        i_EP_Capture_Filter_B_w   : in  std_logic_vector(31 downto 0);
+        i_Filter_A     : in  std_logic_vector(31 downto 0);
+        i_Filter_B     : in  std_logic_vector(31 downto 0);
         --	Event_detect
-        o_Event_A                 : out std_logic_vector(31 downto 0);
-        o_Event_B                 : out std_logic_vector(31 downto 0);
-        --	output result	
-        o_Event_Energy            : out std_logic_vector(77 downto 0);
-        o_A_B                     : out signed(63 downto 0);
-        o_div_read                : out std_logic -- means result has been read
-        
+
+        o_Event_A      : out std_logic_vector(31 downto 0);
+        o_Event_B      : out std_logic_vector(31 downto 0);
+        o_A_B          : out signed(63 downto 0);
+        o_Event_Energy : out std_logic_vector(31 downto 0);
+        o_Event_Rdy    : out std_logic
     );
 end Energy_correction;
 
@@ -56,36 +65,33 @@ architecture Behavioral of Energy_correction is
     -- FSM manage divider
     ------------------------------- 
 
-    type state_type is (Event_detect, Wait_for_PHI, Energy_correction);
-    signal state : state_type := Event_detect;
+    type state_type is (IDLE, Wait_for_PHI, Energy_correction, FIND_MAX);
+    signal state : state_type := IDLE;
 
-    signal o_EP_Capture_Filter_A_w_old : std_logic_vector(31 downto 0);
-    signal o_EP_Capture_Filter_B_w_old : std_logic_vector(31 downto 0);
+    signal A_Max_FP : signed(47 downto 0);
 
-    signal Shifted_MAX_A : signed(53 downto 0);
-
-    --signal Phase_enable : std_logic;
-
-    signal A_B        : signed(63 downto 0);
+    signal B_A : signed(63 downto 0);
 
     -------------------------------
     -- coef tab
     ------------------------------- 
 
-    signal Coeff_data   : integer range 0 to 131071;
-    signal address_coef : unsigned(7 downto 0);
+    signal Coef_data   : std_logic_vector(16 downto 0);
+    signal Coef_Adress : std_logic_vector(7 downto 0);
 
     -------------------------------
     -- divider
     -------------------------------
 
     signal B_A_division_start : std_logic;
-    signal div_read           : std_logic;
-    signal Intermediate_A_B   : std_logic_vector(63 downto 0);
+    signal Event_Rdy          : std_logic;
+    signal FP_B_div_A         : std_logic_vector(63 downto 0);
     signal division_done      : std_logic;
 
-    signal i_Event_A : std_logic_vector(31 downto 0);
-    signal i_Event_B : std_logic_vector(31 downto 0);
+    signal Event_A : std_logic_vector(31 downto 0);
+    signal Event_B : std_logic_vector(31 downto 0);
+
+    signal Time : integer range 0 to 60;
 
 begin
 
@@ -93,78 +99,88 @@ begin
     -- FSM
     -----------------------------------------------------------------
 
-    fsm_process : process(i_CLOCK_100_MHZ, i_Rst_n) is
-        variable Phase_A_B : signed(63 downto 0);
+    fsm_process : process(i_Clk, i_Rst_n) is
+        variable Mul : signed(95 downto 0);
     begin
         if i_Rst_n = '0' then
 
-            state                       <= Event_detect;
-            o_EP_Capture_Filter_A_w_old <= (others => '0');
-            o_EP_Capture_Filter_B_w_old <= (others => '0');
-            i_Event_A                   <= (others => '0');
-            i_Event_B                   <= (others => '0');
+            state <= IDLE;
 
-            B_A_division_start          <= '0';
+            Event_A <= (others => '0');
+            Event_B <= (others => '0');
 
-            --Phase_enable     <= '0';
-            div_read         <= '0';
-            --division_done_r <= '0';
-            Phase_A_B        := x"FFFFFFFFFFFFFFFF";
+            B_A_division_start <= '0';
 
-            A_B              <= (others => '0');
-            o_Event_Energy   <= (others => '0');
- 
-        elsif rising_edge(i_CLOCK_100_MHZ) then
+            Event_Rdy      <= '0';
+            B_A            <= (others => '0');
+            o_Event_Energy <= (others => '0');
 
-            o_EP_Capture_Filter_A_w_old <= i_EP_Capture_Filter_A_w;
-            o_EP_Capture_Filter_B_w_old <= i_EP_Capture_Filter_B_w;
-            Shifted_MAX_A               <= signed("000000" & i_Event_A & "0000000000000000");
-            --o_Energy_corrected_edge <= Energy_corrected;
+            Time <= 0;
+
+        elsif rising_edge(i_Clk) then
+
+            A_Max_FP <= signed(Event_A & X"0000");
 
             case state is
 
-                when Event_detect =>
+                when IDLE =>
 
-                    div_read         <= '0';
+                    Event_Rdy <= '0';
+                    Time      <= 0;
 
-
-                    if signed(o_EP_Capture_Filter_A_w_old) > signed(i_EP_Capture_Filter_A_w) and signed(i_EP_Capture_Filter_A_w) > to_signed(100, 32) then
-                        i_Event_A          <= o_EP_Capture_Filter_A_w_old;
-                        i_Event_B          <= o_EP_Capture_Filter_B_w_old;
-                        B_A_division_start <= '1';
-                        state              <= Wait_for_PHI;
+                    if i_Din_Rdy = '1' then
+                        if signed(i_Filter_A) > signed(i_Threshold) then
+                            Event_A   <= (others => '0');
+                            Event_B   <= (others => '0');
+                            state <= FIND_MAX;
+                        end if;
                     end if;
 
+                when FIND_MAX =>
+
+                    if i_Din_Rdy = '1' then
+                        Time <= Time + 1;
+
+                        if signed(Event_A) < signed(i_Filter_A) then
+                            Event_A <= i_Filter_A;
+                            Event_B <= i_Filter_B;
+                        end if;
+
+                        if Time >= 50 then
+                            B_A_division_start <= '1';
+                            state              <= Wait_for_PHI;
+                        end if;
+                    end if;
+                    
                 when Wait_for_PHI =>
 
                     B_A_division_start <= '0';
 
                     if division_done = '1' then
-                        state      <= Energy_correction;
-                        --Phase_enable <= '1';
-                        Phase_A_B  := signed(Intermediate_A_B);
-                        A_B        <= Phase_A_B;
- 
+                        state <= Energy_correction;
+                        B_A   <= signed(FP_B_div_A);
                     end if;
 
                 when Energy_correction =>
 
+                    ---------------------------------------------------------
+                    -- |47    Partie enti�re    16|15  Partie flottante    0|
+                    ---------------------------------------------------------
 
+                    Mul            := A_Max_FP * signed(X"0000000" & "000" & signed(Coef_data));
+                    o_Event_Energy <= Event_A; -- std_logic_vector(A_Max_FP(47 downto 16)); -- std_logic_vector( Mul(63 downto 32) ); 
 
-                    o_Event_Energy <= std_logic_vector(Shifted_MAX_A * to_signed(Coeff_data, 24));
+                    state     <= IDLE;
+                    Event_Rdy <= '1';
 
-                    if signed(i_EP_Capture_Filter_A_w) < x"00004530" then
-                        state    <= Event_detect;
-                        div_read <= '1';
-                    end if;
             end case;
 
-        end if;
-    end process fsm_process;
+    end if;
+end process fsm_process;
 
-    o_Event_A                 <= i_Event_A;
-    o_Event_B                 <= i_Event_B;
- 
+    o_Event_A <= Event_A;
+    o_Event_B <= Event_B;
+
     -----------------------------------------------------------------
     -- divider
     -----------------------------------------------------------------	
@@ -172,34 +188,38 @@ begin
     SHIFT_divider : entity work.divider
         port map(
             i_Rst_n        => i_Rst_n,  -- : in  std_logic;
-            CLOCK_100_MHZ  => i_CLOCK_100_MHZ, -- : in  std_logic;
+            CLOCK_100_MHZ  => i_Clk,    -- : in  std_logic;
 
             Division_start => B_A_division_start, -- : in  std_logic; --process is done
-            Div_read       => div_read, -- : in  std_logic; --means result has been read
+            Div_read       => Event_Rdy, -- : in  std_logic; --means result has been read
 
-            A              => i_Event_A,
-            B              => i_Event_B,
-            Result         => Intermediate_A_B, -- : out std_logic_vector(15 downto 0);std_logic_vector(A_B_16bits), 
+            A              => Event_A,
+            B              => Event_B,
+            Result         => FP_B_div_A, -- : out std_logic_vector(15 downto 0);std_logic_vector(A_B_16bits), 
             Result_rdy     => division_done -- : out std_logic
         );
 
     --EP_Event_Rdy <= Phase_enable;
     --le bit de signe de PHI (A_B) est le bit 22 (le 23eme) mais les valeur de phi sont très petites
     -- donc la valeur utile de phi commence à 20 (qui est le bit de signe)
-    address_coef <= unsigned(A_B(20 downto 13));
-    o_A_B        <= A_B;
+    Coef_Adress <= std_logic_vector(B_A(20 downto 13));
+    o_A_B       <= B_A;
 
     -----------------------------------------------------------------
     -- Phi correction ROM
     -----------------------------------------------------------------	
 
-    Coeff_Table_ROM_instantiation : entity work.Coeff_Table
+    Coeff_Table_ROM_instantiation : entity work.Phi_Corr_Table
         port map(
-            address => To_integer(address_coef),
-            data    => Coeff_data
+            i_Clk          => i_Clk,
+            i_Base_Address => i_Base_Address,
+            i_Data         => i_Data,
+            i_Address      => i_Address,
+            i_Wr           => i_Wr,
+            i_Coef_Adress  => Coef_Adress,
+            i_Coef_Data    => Coef_data
         );
 
-    --o_Phase_enable <= Phase_enable;     -- digital pulse energy correction is applied
-    o_div_read <= div_read;             -- means result has been read
+    o_Event_Rdy <= Event_Rdy;           -- means result has been read
 
 end;

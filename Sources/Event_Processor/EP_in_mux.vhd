@@ -44,9 +44,9 @@ entity EP_in_mux is
         i_Rdy           : in    std_logic_vector(0 to pipeline_size - 1);
         -- Data input
         i_Din           : in    Array_8x16_type;
-        o_Rdy           : out   std_logic_vector(0 to pipeline_size - 1);
+        o_Rdy           : out   std_logic;
         o_Din           : out   std_logic_vector(15 downto 0);
-        o_id            : out std_logic_vector(id_size downto 0)
+        o_id            : out unsigned(id_size downto 0)
     );
 end EP_in_mux;
 
@@ -56,31 +56,31 @@ architecture Behavioral of EP_in_mux is
     signal Rdy_concat : std_logic_vector(pipeline_size - 1 downto 0);
 
     -- id
-    signal id : std_logic_vector(id_size downto 0);
+    signal id : unsigned(id_size downto 0);
 
 begin
 
     -----------------------------------------
-    -- Process: comput substractor
+    -- process: comput substractor
     -----------------------------------------
 
     process(i_Rst_n, i_CLOCK_100_MHZ)
     begin
         if i_Rst_n = '0' then
-            o_Rdy <= (others => '0');
+            o_Rdy <= '0';
             o_Din <= (others => '0');
             o_id  <= (others => '0');
         else
             if rising_edge(i_CLOCK_100_MHZ) then
 
-                if i_Rdy(To_integer(unsigned(id))) = '1' then -- test before loading ram
-                    o_Rdy <= i_Rdy;
-                    --o_id    <=  i_id;  
-                    o_Din <= i_Din(To_integer(unsigned(id)));
+                if i_Rdy(to_integer(unsigned(id))) = '1' then -- test before loading ram
+                    o_Rdy <= '1';
+                    
+                    o_Din <= i_Din(to_integer(unsigned(id)));
                     o_id  <= id;
                 else
-                    o_Rdy <= (others => '0');
-                    --o_Din <= (others => '0');
+                    o_Rdy <= '0';
+                    
                 end if;
 
             end if;
@@ -88,6 +88,8 @@ begin
         end if;
 
     end process;
+
+
 
     all_instrument : if pipeline_size = 8 generate
         Rdy_concat <= (i_Rdy(7) & i_Rdy(6) & i_Rdy(5) & i_Rdy(4)) & (i_Rdy(3) & i_Rdy(2) & i_Rdy(1) & i_Rdy(0));

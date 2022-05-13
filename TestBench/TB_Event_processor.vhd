@@ -152,11 +152,12 @@ architecture Behavioral of TB_Event_processor is
     signal up                  : up_array;
     type delay_inter_ramp_array is array (0 to pipeline_size - 1) of integer range 0 to 1000;
     signal delay_inter_ramp    : delay_inter_ramp_array;
+	signal peak_hold			   : std_logic_vector(0 to pipeline_size - 1);
 
     type Gain_ramp_array is array (0 to pipeline_size - 1) of integer;
     signal Gain_ramp : Gain_ramp_array;
 
-    --constant Gain_ramp_cte :	Gain_ramp_array := (1,1,1,1,1,1,1,1); 
+    constant Gain_ramp_cte :	Gain_ramp_array := (1,0,0,0,0,0,0,0); 
     --constant Gain_ramp_cte : Gain_ramp_array := (1);
 
 begin
@@ -394,9 +395,9 @@ begin
             --------------------------------------------------------------------------------------------
             -- SUM
             -------------------------------------------------------------------------------------------
-            i_sum_plus_A            => std_logic_vector(To_unsigned(7, 6)),
-			i_sum_zero_A            => std_logic_vector(To_unsigned(7, 6)),
-            i_sum_minus_A           => std_logic_vector(To_unsigned(7, 6)),
+            i_sum_plus_A            => std_logic_vector(To_unsigned(2, 6)),
+			i_sum_zero_A            => std_logic_vector(To_unsigned(2, 6)),
+            i_sum_minus_A           => std_logic_vector(To_unsigned(2, 6)),
 			
 			i_sum_plus_B            => std_logic_vector(To_unsigned(7, 6)),
 			i_sum_zero_B            => std_logic_vector(To_unsigned(7, 6)),
@@ -442,6 +443,7 @@ begin
             up(i)               <= '0';
             delay_inter_ramp(i) <= 0;
             Gain_ramp(i)        <= 0;
+			peak_hold  		      <= (others=> '0');
 
             while True loop
                 wait until rising_edge(FIFO_OUT_rd_en(i));
@@ -449,20 +451,22 @@ begin
                 if up(i) = '1' then
                     count(i) <= count(i) + 1; --ramp rising
                     --if count = 33 then	-- test 
-                    if count(i) = 6 then -- test
-                        up(i) <= '0';
+                    if count(i) = 4 and peak_hold(i) = '0' then -- test
+					    up(i) <= '0';
+						 peak_hold(i) <= '1';
                     end if;
                 else
-                    if count(i) >= 1 then
+                    if count(i) >= 1 and  peak_hold(i) = '0' then
                         count(i) <= count(i) - 1; -- ramp falling
                     else
+						peak_hold(i)  		      <= '0';
                         if count(i) = 0 then
                             delay_inter_ramp(i) <= delay_inter_ramp(i) + 1;
                             if delay_inter_ramp(i) = 500 then -- detect max inter delay inter ramp
                                 count(i)     <= 0;
                                 up(i)        <= '1';
                                 --Gain_ramp	<=	Gain_ramp+200;
-                                Gain_ramp(i) <= 1;
+                                Gain_ramp(i) <= Gain_ramp_cte(i);
                                 -- Gain_ramp(1)	<=	2000;
                                 -- Gain_ramp(2)	<=	2000;
                                 -- Gain_ramp(3)	<=	2000;
@@ -476,6 +480,8 @@ begin
                                 --Gain_ramp(i)	<= 0;
                                 --end if;
                             end if;
+	
+					
                         end if;
                     end if;
                 end if;

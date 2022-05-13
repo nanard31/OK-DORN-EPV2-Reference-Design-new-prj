@@ -104,7 +104,7 @@ architecture Behavioral of Event_Processor_Interfaces is
     -- switch pattern ADC OR ramp
     -----------------------------------------------------------------
 
-    constant enable_adc_sequencer : std_logic_vector := "00"; --	"00" Universal_generator, "10" ADCs Fusio
+    constant enable_adc_sequencer : std_logic_vector := "10"; --	"00" Universal_generator, "10" ADCs Fusio
 
     -----------------------------------------------------------------
     -- ADC Sequencer
@@ -182,6 +182,7 @@ architecture Behavioral of Event_Processor_Interfaces is
     signal sum_minus_B       : std_logic_vector(5 downto 0);
     signal sum_zero_B        : std_logic_vector(5 downto 0);
 
+
 begin
 
     ---------------------------------------------------------------
@@ -246,13 +247,13 @@ begin
     end generate label_connection_Universal_signal_generator;
 
     label_connection_ADC : if enable_adc_sequencer = "10" generate
-        sum_plus_A  <= std_logic_vector(To_unsigned(14, 6));
-        sum_minus_A <= std_logic_vector(To_unsigned(14, 6));
-        sum_zero_A  <= std_logic_vector(To_unsigned(1, 6));
+        sum_plus_A  <= std_logic_vector(To_unsigned(3, 6));
+        sum_minus_A <= std_logic_vector(To_unsigned(3, 6));
+        sum_zero_A  <= std_logic_vector(To_unsigned(3, 6));
 
-        sum_plus_B  <= std_logic_vector(To_unsigned(44, 6));
-        sum_minus_B <= std_logic_vector(To_unsigned(14, 6));
-        sum_zero_B  <= std_logic_vector(To_unsigned(14, 6));
+        sum_plus_B  <= std_logic_vector(To_unsigned(3, 6));
+        sum_minus_B <= std_logic_vector(To_unsigned(3, 6));
+        sum_zero_B  <= std_logic_vector(To_unsigned(3, 6));
 
     end generate label_connection_ADC;
 
@@ -266,53 +267,47 @@ begin
     -----------------------------------------------------------------
     filter_reset <= not i_Rst_n;
 
-    Inst_Event_Processor : entity work.Event_Processor
+    Inst_Event_Processor : entity work.EP_PM
         port map(
             i_Rst_n                       => i_Rst_n,
             i_Clk                         => i_Clk,
-            --------------------------------------------------------------------------------------------
-            -- input from ADC
-            --------------------------------------------------------------------------------------------         
+            
+            i_Threshold                   => x"00000000",
+            
             i_DU_ADC_Ready_100_front      => DU_ADC_Ready_100_front,
-            i_DU_ADC_Ready_100_back       => DU_ADC_Ready_100_back,
             i_DU_ADC_Front_Dout           => DU_ADC_Front_Dout,
             i_DU_ADC_Back_Dout            => DU_ADC_Back_Dout,
-            --------------------------------------------------------------------------------------------
-            -- input param SUM from GSE 
-            -------------------------------------------------------------------------------------------
+            
             i_sum_plus_A                  => sum_plus_A,
             i_sum_zero_A                  => sum_zero_A,
             i_sum_minus_A                 => sum_minus_A,
             i_sum_plus_B                  => sum_plus_B,
             i_sum_zero_B                  => sum_zero_B,
             i_sum_minus_B                 => sum_minus_B,
-            -------------------------------
-            -- Out phase correction FRONT
-            -------------------------------
-            o_Event_B_front               => o_Event_B, -- max B on pulse peak.
-            o_Event_A_front               => o_Event_A, -- max A on pulse peak.
-            o_Event_Energy_front          => o_Event_Energy, -- wide bus energy.
-            o_A_B_front                   => A_B, -- phase (phi).
-            o_div_read_front              => o_div_read, -- from div to start write fifo process before pipe out. 
-            -------------------------------
-            -- Out filter FRONT
-            -------------------------------
-            o_EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w, -- analog filter A output 
-            o_EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w, -- analog filter B output
-            -------------------------------
-            -- Out phase correction BACK
-            -------------------------------
-            o_Event_B_back                => open, -- max B on pulse peak.
+            
+            o_Event_A_front               => o_Event_A,
+            o_Event_B_front               => o_Event_B,
+            o_Event_Energy_front          => open,
+            o_A_B_front                   => A_B,
+            o_Event_Rdy                   => o_div_read,
+            o_EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w,
+            o_EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w,
+            
             o_Event_A_back                => open,
+            o_Event_B_back                => open,
             o_Event_Energy_back           => open,
             o_A_B_back                    => open,
-            o_div_read_back               => open,
-            -------------------------------
-            -- Out filter BACK
-            -------------------------------
-            o_EP_Capture_Filter_back_A_w  => open,
-            o_EP_Capture_Filter_back_B_w  => open
+            o_Event_Ready_back            => open,
+            
+            o_Raw_Filter_A                => open,
+            o_Raw_Filter_B                => open,
+            
+            i_Base_Address                => X"0",
+            i_Data                        => b"00000000000000000",
+            i_Address                     => x"0000",
+            i_Wr                          => '0'
         );
+ 
 
     -----------------------------------------------------------------
     -- Fifo Raw
