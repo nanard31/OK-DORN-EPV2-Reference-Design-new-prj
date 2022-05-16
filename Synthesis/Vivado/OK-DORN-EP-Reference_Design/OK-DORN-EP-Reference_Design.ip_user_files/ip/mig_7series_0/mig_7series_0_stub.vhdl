@@ -1,10 +1,10 @@
 -- Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2020.2 (win64) Build 3064766 Wed Nov 18 09:12:45 MST 2020
--- Date        : Fri May 13 11:45:50 2022
+-- Date        : Mon May 16 18:02:13 2022
 -- Host        : DESKTOP-BSP8Q2B running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub -rename_top mig_7series_0 -prefix
---               mig_7series_0_ mig_7series_0_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub
+--               c:/TORTOISE_EP/OK-DORN-EPV2-Reference-Design-new-prj/Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip/mig_7series_0/mig_7series_0_stub.vhdl
 -- Design      : mig_7series_0
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a75tfgg484-1
