@@ -32,55 +32,55 @@ use work.DORN_EP_Package.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity EP_in_mux is
+entity EP_PM_in_mux is
     port(
         -- Reset and Clock
 
-        i_Rst_n         : in    std_logic;
-        i_CLOCK_100_MHZ : in    std_logic;
+        i_Rst_n         : in  std_logic;
+        i_CLOCK_100_MHZ : in  std_logic;
         -- data science input
 
         -- Ready flag input
-        i_Rdy           : in    std_logic_vector(0 to pipeline_size - 1);
+        i_Rdy           : in  std_logic_vector(0 to pipeline_size - 1);
         -- Data input
-        i_Din           : in    Array_8x16_type;
-        o_Rdy           : out   std_logic_vector(0 to pipeline_size - 1);
-        o_Din           : out   std_logic_vector(15 downto 0);
-        o_id            : out std_logic_vector(id_size downto 0)
+        i_Din           : in  Array_8x16_type;
+        o_Rdy           : out std_logic;
+        o_Din           : out std_logic_vector(15 downto 0);
+        o_id            : out unsigned(id_size downto 0)
     );
-end EP_in_mux;
+end EP_PM_in_mux;
 
-architecture Behavioral of EP_in_mux is
+architecture Behavioral of EP_PM_in_mux is
 
     -- Ready flag buffers
     signal Rdy_concat : std_logic_vector(pipeline_size - 1 downto 0);
 
     -- id
-    signal id : std_logic_vector(id_size downto 0);
+    signal id : unsigned(id_size downto 0);
 
 begin
 
     -----------------------------------------
-    -- Process: comput substractor
+    -- process: comput substractor
     -----------------------------------------
 
     process(i_Rst_n, i_CLOCK_100_MHZ)
     begin
         if i_Rst_n = '0' then
-            o_Rdy <= (others => '0');
+            o_Rdy <= '0';
             o_Din <= (others => '0');
             o_id  <= (others => '0');
         else
             if rising_edge(i_CLOCK_100_MHZ) then
 
-                if i_Rdy(To_integer(unsigned(id))) = '1' then -- test before loading ram
-                    o_Rdy <= i_Rdy;
-                    --o_id    <=  i_id;  
-                    o_Din <= i_Din(To_integer(unsigned(id)));
+                if i_Rdy(to_integer(unsigned(id))) = '1' then -- test before loading ram
+                    o_Rdy <= '1';
+
+                    o_Din <= i_Din(to_integer(unsigned(id)));
                     o_id  <= id;
                 else
-                    o_Rdy <= (others => '0');
-                    --o_Din <= (others => '0');
+                    o_Rdy <= '0';
+
                 end if;
 
             end if;

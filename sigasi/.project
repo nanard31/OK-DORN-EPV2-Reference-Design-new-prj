@@ -58,6 +58,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM.vhd</locationURI>
 		</link>
 		<link>
+			<name>EP_PM_FIFO.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_FIFO.vhd</locationURI>
+		</link>
+		<link>
 			<name>EP_PM_Filter.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_Filter.vhd</locationURI>
@@ -71,6 +76,11 @@
 			<name>EP_PM_Sum.vhd</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_Sum.vhd</locationURI>
+		</link>
+		<link>
+			<name>EP_PM_in_mux.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_in_mux.vhd</locationURI>
 		</link>
 		<link>
 			<name>EP_in_mux.vhd</name>
@@ -121,6 +131,21 @@
 			<name>Common Libraries/DRAG_REUSABLE_LIBRARIES_HERE.txt</name>
 			<type>1</type>
 			<locationURI>sigasiresource:/vhdl/readme.txt</locationURI>
+		</link>
+		<link>
+			<name>Common Libraries/EP_PM_FIFO.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_FIFO.vhd</locationURI>
+		</link>
+		<link>
+			<name>Common Libraries/EP_PM_Filter.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_Filter.vhd</locationURI>
+		</link>
+		<link>
+			<name>Common Libraries/EP_PM_in_mux.vhd</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Sources/Event_Processor/EP_PM_in_mux.vhd</locationURI>
 		</link>
 		<link>
 			<name>Common Libraries/IEEE</name>

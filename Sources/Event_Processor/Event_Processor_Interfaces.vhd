@@ -182,7 +182,6 @@ architecture Behavioral of Event_Processor_Interfaces is
     signal sum_minus_B       : std_logic_vector(5 downto 0);
     signal sum_zero_B        : std_logic_vector(5 downto 0);
 
-
 begin
 
     ---------------------------------------------------------------
@@ -269,45 +268,38 @@ begin
 
     Inst_Event_Processor : entity work.EP_PM
         port map(
-            i_Rst_n                       => i_Rst_n,
-            i_Clk                         => i_Clk,
-            
-            i_Threshold                   => x"00000000",
-            
-            i_DU_ADC_Ready_100_front      => DU_ADC_Ready_100_front,
-            i_DU_ADC_Front_Dout           => DU_ADC_Front_Dout,
-            i_DU_ADC_Back_Dout            => DU_ADC_Back_Dout,
-            
-            i_sum_plus_A                  => sum_plus_A,
-            i_sum_zero_A                  => sum_zero_A,
-            i_sum_minus_A                 => sum_minus_A,
-            i_sum_plus_B                  => sum_plus_B,
-            i_sum_zero_B                  => sum_zero_B,
-            i_sum_minus_B                 => sum_minus_B,
-            
-            o_Event_A_front               => o_Event_A,
-            o_Event_B_front               => o_Event_B,
-            o_Event_Energy_front          => open,
-            o_A_B_front                   => A_B,
-            o_Event_Rdy                   => o_div_read,
-            o_EP_Capture_Filter_front_A_w => o_EP_Capture_Filter_A_w,
-            o_EP_Capture_Filter_front_B_w => o_EP_Capture_Filter_B_w,
-            
-            o_Event_A_back                => open,
-            o_Event_B_back                => open,
-            o_Event_Energy_back           => open,
-            o_A_B_back                    => open,
-            o_Event_Ready_back            => open,
-            
-            o_Raw_Filter_A                => open,
-            o_Raw_Filter_B                => open,
-            
-            i_Base_Address                => X"0",
-            i_Data                        => b"00000000000000000",
-            i_Address                     => x"0000",
-            i_Wr                          => '0'
+            i_Rst_n              => i_Rst_n,
+            i_Clk                => i_Clk,
+            i_Threshold          => x"00000000",
+            i_Delta              => b"000100",
+            i_Din_Rdy            => DU_ADC_Ready_100_front,
+            i_Front_Din          => DU_ADC_Front_Dout,
+            i_Back_Din           => DU_ADC_Back_Dout,
+            i_Filter_A_N         => sum_plus_A,
+            i_Filter_A_Z         => sum_zero_A,
+            i_Filter_A_M         => sum_minus_A,
+            i_Filter_B_N         => sum_plus_B,
+            i_Filter_B_Z         => sum_zero_B,
+            i_Filter_B_M         => sum_minus_B,
+            o_Front_Event_A      => o_Event_A,
+            o_Front_Event_B      => o_Event_B,
+            o_Front_Event_Energy => open,
+            o_Front_A_B          => A_B,
+            o_Front_Event_Rdy    => o_div_read,
+            o_Front_Filter_A     => o_EP_Capture_Filter_A_w,
+            o_Front_Filter_B     => o_EP_Capture_Filter_B_w,
+            o_Back_Event_A       => open,
+            o_Back_Event_B       => open,
+            o_Back_Event_Energy  => open,
+            o_Back_A_B           => open,
+            o_Back_Event_Rdy     => open,
+            o_Back_Filter_A      => open,
+            o_Back_Filter_B      => open,
+            i_Base_Address       => X"0",
+            i_Data               => b"0000000000000000",
+            i_Address            => x"0000",
+            i_Wr                 => '0'
         );
- 
 
     -----------------------------------------------------------------
     -- Fifo Raw

@@ -36,10 +36,12 @@ entity Energy_correction is
         i_Rst_n        : in  std_logic;
         i_Clk          : in  std_logic;
         i_Threshold    : in  std_logic_vector(31 downto 0);
+        i_Delta        : in  std_logic_vector(5 downto 0);        
+
         -- Memory bus
 
         i_Base_Address : in  STD_LOGIC_VECTOR(7 downto 0);
-        i_Data         : in  STD_LOGIC_VECTOR(16 downto 0);
+        i_Data         : in  STD_LOGIC_VECTOR(15 downto 0);
         i_Address      : in  STD_LOGIC_VECTOR(15 downto 0);
         i_Wr           : in  STD_LOGIC;
         -- ADC Data Ready
@@ -51,6 +53,8 @@ entity Energy_correction is
         i_Filter_B     : in  std_logic_vector(31 downto 0);
         --	Event_detect
 
+        o_Debug        : out std_logic_vector(31 downto 0);
+        
         o_Event_A      : out std_logic_vector(31 downto 0);
         o_Event_B      : out std_logic_vector(31 downto 0);
         o_A_B          : out signed(63 downto 0);
@@ -76,8 +80,8 @@ architecture Behavioral of Energy_correction is
     -- coef tab
     ------------------------------- 
 
-    signal Coef_data   : std_logic_vector(16 downto 0);
-    signal Coef_Adress : std_logic_vector(7 downto 0);
+    signal Coef_data   : std_logic_vector(15 downto 0);
+    signal Coef_Adress : std_logic_vector(8 downto 0);
 
     -------------------------------
     -- divider
@@ -91,7 +95,7 @@ architecture Behavioral of Energy_correction is
     signal Event_A : std_logic_vector(31 downto 0);
     signal Event_B : std_logic_vector(31 downto 0);
 
-    signal Time : integer range 0 to 60;
+    signal Time : integer range 0 to 128;
 
 begin
 
@@ -116,6 +120,7 @@ begin
             o_Event_Energy <= (others => '0');
 
             Time <= 0;
+            o_Debug <= X"00000000";
 
         elsif rising_edge(i_Clk) then
 
@@ -127,11 +132,13 @@ begin
 
                     Event_Rdy <= '0';
                     Time      <= 0;
-
+                    o_Debug <= X"00000000";
+                    
                     if i_Din_Rdy = '1' then
                         if signed(i_Filter_A) > signed(i_Threshold) then
                             Event_A   <= (others => '0');
                             Event_B   <= (others => '0');
+                            o_Debug <= i_Filter_A;
                             state <= FIND_MAX;
                         end if;
                     end if;
@@ -144,14 +151,16 @@ begin
                         if signed(Event_A) < signed(i_Filter_A) then
                             Event_A <= i_Filter_A;
                             Event_B <= i_Filter_B;
+                            o_Debug <= i_Filter_A;
                         end if;
 
-                        if Time >= 50 then
-                            B_A_division_start <= '1';
-                            state              <= Wait_for_PHI;
-                        end if;
                     end if;
-                    
+
+                    if Time >= unsigned(i_Delta) then
+                        B_A_division_start <= '1';
+                        state              <= Wait_for_PHI;
+                    end if;
+                                            
                 when Wait_for_PHI =>
 
                     B_A_division_start <= '0';
@@ -163,12 +172,12 @@ begin
 
                 when Energy_correction =>
 
-                    ---------------------------------------------------------
-                    -- |47    Partie entière    16|15  Partie flottante    0|
-                    ---------------------------------------------------------
+                    -------------------------------------------------------------------------------
+                    -- |47    Partie entière ( 32 bits )   16|15  Partie flottante ( 16 bits )   0|
+                    -------------------------------------------------------------------------------
 
-                    Mul            := A_Max_FP * signed(X"0000000" & "000" & signed(Coef_data));
-                    o_Event_Energy <= Event_A; -- std_logic_vector(A_Max_FP(47 downto 16)); -- std_logic_vector( Mul(63 downto 32) ); 
+                    Mul            := A_Max_FP * signed(X"00000001" & Coef_data);
+                    o_Event_Energy <= std_logic_vector( Mul(63 downto 32) ); 
 
                     state     <= IDLE;
                     Event_Rdy <= '1';
@@ -179,7 +188,7 @@ begin
 end process fsm_process;
 
     o_Event_A <= Event_A;
-    o_Event_B <= Event_B;
+    o_Event_B <= X"0001" & Coef_data;
 
     -----------------------------------------------------------------
     -- divider
@@ -202,7 +211,7 @@ end process fsm_process;
     --EP_Event_Rdy <= Phase_enable;
     --le bit de signe de PHI (A_B) est le bit 22 (le 23eme) mais les valeur de phi sont trÃ¨s petites
     -- donc la valeur utile de phi commence Ã  20 (qui est le bit de signe)
-    Coef_Adress <= std_logic_vector(B_A(20 downto 13));
+    Coef_Adress <= std_logic_vector(B_A(19 downto 11));
     o_A_B       <= B_A;
 
     -----------------------------------------------------------------

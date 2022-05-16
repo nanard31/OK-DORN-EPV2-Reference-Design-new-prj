@@ -26,100 +26,84 @@ use work.DORN_EP_Package.ALL;
 
 entity EP_PM is
     port(
-        i_Rst_n                       : in  std_logic;
-        -------------------------------
-        -- CLOCK
-        ------------------------------
-
-        i_Clk                         : in  std_logic; -- 100 MHz
-
-        i_Threshold                   : in  std_logic_vector(31 downto 0);
+        i_Rst_n              : in  std_logic;
+        i_Clk                : in  std_logic;
+        i_Threshold          : in  std_logic_vector(31 downto 0);
+        i_Delta              : in  std_logic_vector(5 downto 0);
         --------------------------------------------------------------------------------------------
-        -- input from ADC
+        -- ADCs
         --------------------------------------------------------------------------------------------
 
-        -- Ready flag buffers
-        i_DU_ADC_Ready_100_front      : in  std_logic_vector(0 to pipeline_size - 1);
-        -- DU_ADC Data
-        i_DU_ADC_Front_Dout           : in  Array_8x16_type;
-        i_DU_ADC_Back_Dout            : in  Array_8x16_type;
+        i_Din_Rdy            : in  std_logic_vector(0 to pipeline_size - 1);
+        i_Front_Din          : in  Array_8x16_type;
+        i_Back_Din           : in  Array_8x16_type;
         --------------------------------------------------------------------------------------------
-        -- input param SUM from GSE 
+        -- Parameters 
         -------------------------------------------------------------------------------------------
-        i_sum_plus_A                  : in  std_logic_vector(5 downto 0);
-        i_sum_zero_A                  : in  std_logic_vector(5 downto 0);
-        i_sum_minus_A                 : in  std_logic_vector(5 downto 0);
-        i_sum_plus_B                  : in  std_logic_vector(5 downto 0);
-        i_sum_zero_B                  : in  std_logic_vector(5 downto 0);
-        i_sum_minus_B                 : in  std_logic_vector(5 downto 0);
+        i_Filter_A_N         : in  std_logic_vector(5 downto 0);
+        i_Filter_A_Z         : in  std_logic_vector(5 downto 0);
+        i_Filter_A_M         : in  std_logic_vector(5 downto 0);
+        i_Filter_B_N         : in  std_logic_vector(5 downto 0);
+        i_Filter_B_Z         : in  std_logic_vector(5 downto 0);
+        i_Filter_B_M         : in  std_logic_vector(5 downto 0);
         -------------------------------
-        -- Out phase correction FRONT
-        -------------------------------
-
-        o_Event_A_front               : out std_logic_vector(31 downto 0); -- max A on pulse peak.
-        o_Event_B_front               : out std_logic_vector(31 downto 0); -- max B on pulse peak.
-        o_Event_Energy_front          : out std_logic_vector(31 downto 0); -- wide bus energy.
-        o_A_B_front                   : out signed(63 downto 0); -- phase (phi).
-        o_Event_Rdy                   : out std_logic; -- from div to start write fifo process before pipe out. 
-
-        -------------------------------
-        -- Out filter FRONT
+        -- Front
         -------------------------------
 
-        o_EP_Capture_Filter_front_A_w : out std_logic_vector(31 downto 0);
-        o_EP_Capture_Filter_front_B_w : out std_logic_vector(31 downto 0);
+        o_Front_Event_Rdy    : out std_logic; -- from div to start write fifo process before pipe out. 
+
+        o_Front_Event_A      : out std_logic_vector(31 downto 0); -- max A on pulse peak.
+        o_Front_Event_B      : out std_logic_vector(31 downto 0); -- max B on pulse peak.
+        o_Front_Event_Energy : out std_logic_vector(31 downto 0); -- wide bus energy.
+        o_Front_A_B          : out signed(63 downto 0); -- phase (phi).
+        o_Front_Filter_A     : out std_logic_vector(31 downto 0);
+        o_Front_Filter_B     : out std_logic_vector(31 downto 0);
         -------------------------------
-        -- Out phase correction BACK
+        -- Back
         -------------------------------
 
-        o_Event_A_back                : out std_logic_vector(31 downto 0); -- max A on pulse peak.
-        o_Event_B_back                : out std_logic_vector(31 downto 0); -- max B on pulse peak.
-        o_Event_Energy_back           : out std_logic_vector(31 downto 0); -- wide bus energy.
-        o_A_B_back                    : out signed(63 downto 0); -- phase (phi).
-        o_Event_Ready_back            : out std_logic; -- from div to start write fifo process before pipe out. 
-        -------------------------------
-        -- Out filter BACK
-        -------------------------------
+        o_Back_Event_Rdy     : out std_logic; -- from div to start write fifo process before pipe out.
 
-        o_Raw_Filter_A                : out std_logic_vector(31 downto 0);
-        o_Raw_Filter_B                : out std_logic_vector(31 downto 0);
+        o_Back_Event_A       : out std_logic_vector(31 downto 0); -- max A on pulse peak.
+        o_Back_Event_B       : out std_logic_vector(31 downto 0); -- max B on pulse peak.
+        o_Back_Event_Energy  : out std_logic_vector(31 downto 0); -- wide bus energy.
+        o_Back_A_B           : out signed(63 downto 0); -- phase (phi).
+
+        o_Back_Filter_A      : out std_logic_vector(31 downto 0);
+        o_Back_Filter_B      : out std_logic_vector(31 downto 0);
         --------------------------------------------------------------------------------------------
         -- Memory Bus
         --------------------------------------------------------------------------------------------
 
-        i_Base_Address                : in  STD_LOGIC_VECTOR(3 downto 0);
-        i_Data                        : in  STD_LOGIC_VECTOR(16 downto 0);
-        i_Address                     : in  STD_LOGIC_VECTOR(15 downto 0);
-        i_Wr                          : in  STD_LOGIC
+        i_Base_Address       : in  STD_LOGIC_VECTOR(3 downto 0);
+        i_Data               : in  STD_LOGIC_VECTOR(15 downto 0);
+        i_Address            : in  STD_LOGIC_VECTOR(15 downto 0);
+        i_Wr                 : in  STD_LOGIC
     );
 
 end EP_PM;
 
 architecture Behavioral of EP_PM is
 
-    signal Rdy_front, Rdy_back : std_logic;
-    signal Din_front, Din_back : std_logic_vector(15 downto 0);
-    signal id_front, id_back   : unsigned(id_size downto 0);
-
-    signal o_out_temp_front_A : Array_8x31_type;
-    signal o_out_temp_back_A  : Array_8x31_type;
-    signal o_out_temp_front_B : Array_8x31_type;
-    signal o_out_temp_back_B  : Array_8x31_type;
-
-    signal EP_Capture_Filter_front_A_w : std_logic_vector(31 downto 0);
-    signal EP_Capture_Filter_front_B_w : std_logic_vector(31 downto 0);
-
-    signal EP_Capture_Filter_back_A_w : std_logic_vector(31 downto 0);
-    signal EP_Capture_Filter_back_B_w : std_logic_vector(31 downto 0);
-
     signal EC_Base_Address : STD_LOGIC_VECTOR(7 downto 0);
-    --signal PH_Event        : std_logic_vector(31 downto 0);
+
+    signal Front_ID       : unsigned(id_size downto 0);
+    signal Front_Din      : std_logic_vector(15 downto 0);
+    signal Front_Din_Rdy  : std_logic;
+    signal Front_Filter_A : Array_8x31_type;
+    signal Front_Filter_B : Array_8x31_type;
+
+    signal Back_ID       : unsigned(id_size downto 0);
+    signal Back_Din      : std_logic_vector(15 downto 0);
+    signal Back_Din_Rdy  : std_logic;
+    signal Back_Filter_A : Array_8x31_type;
+    signal Back_Filter_B : Array_8x31_type;
 
 begin
 
     ---------------------------------------------------------------------------------------------------------------------
     --
-    --front section
+    --Front section
     --
     ----------------------------------------------------------------------------------------------------------------------
 
@@ -127,116 +111,84 @@ begin
     -- front mux
     --------------------------------------------------------------------------------------------
 
-    Inst_EP_in_mux_front : entity work.EP_in_mux
+    Front_EP_in_mux : entity work.EP_PM_in_mux
         port map(
             i_Rst_n         => i_Rst_n,
             i_CLOCK_100_MHZ => i_Clk,
-            --ADC
-            i_Rdy           => i_DU_ADC_Ready_100_front,
-            i_Din           => i_DU_ADC_Front_Dout,
-            --filter
-            o_Rdy           => Rdy_front,
-            o_Din           => Din_front,
-            o_id            => id_front
+            i_Rdy           => i_Din_Rdy,
+            i_Din           => i_Front_Din,
+            o_Rdy           => Front_Din_Rdy,
+            o_Din           => Front_Din,
+            o_id            => Front_ID
         );
 
     --------------------------------------------------------------------------------------------
     -- filter front A
     --------------------------------------------------------------------------------------------
 
-    Inst_Filter_front_A : entity work.EP_PM_Filter
+    Inst_Front_Filter_A : entity work.EP_PM_Filter
         port map(
-            i_Rst_n     => i_Rst_n,
-            -------------------------------
-            -- CLOCK
-            ------------------------------
-
-            i_Clk       => i_Clk,
-            -- conf
-            -- sum conf
-            i_N  => i_sum_plus_A,
-            i_Z  => i_sum_zero_A,
-            i_M => i_sum_minus_A,
-            
-            i_id        => id_front,
-            i_Din       => Din_front,
-            --------------------------------------------------------------------------------------------
-            -- ADC
-            --------------------------------------------------------------------------------------------
-
-            -- Ready flag buffers
-            i_Rdy       => Rdy_front,
-            -------------------------------
-            -- Out filter
-            -------------------------------
-
-            o_Dout      => o_out_temp_front_A
+            i_Rst_n         => i_Rst_n,
+            i_Clk           => i_Clk,
+            i_N             => i_Filter_A_N,
+            i_Z             => i_Filter_A_Z,
+            i_M             => i_Filter_A_M,
+            i_id            => Front_ID,
+            i_Din           => Front_Din,
+            i_Rdy           => Front_Din_Rdy,
+            o_Fitler_A_Dout => Front_Filter_A,
+            o_Fitler_B_Dout => open
         );
 
     --------------------------------------------------------------------------------------------
     -- filter front B
     --------------------------------------------------------------------------------------------
 
-    Inst_Filter_front_B : entity work.EP_PM_Filter_B
+    Inst_Front_Filter_B : entity work.EP_PM_Filter
         port map(
-            i_Rst_n     => i_Rst_n,
-            -------------------------------
-            -- CLOCK
-            ------------------------------
-
-            i_Clk       => i_Clk,
-            -- conf
-            -- sum conf
-            i_N  => i_sum_plus_B,
-            i_Z  => i_sum_zero_B,
-            i_M => i_sum_minus_B,
-            i_id        => id_front,
-            i_Din       => Din_front,
-            --------------------------------------------------------------------------------------------
-            -- ADC
-            --------------------------------------------------------------------------------------------
-
-            -- Ready flag buffers
-            i_Rdy       => Rdy_front,
-            -------------------------------
-            -- Out filter
-            -------------------------------
-
-            o_Dout  => o_out_temp_front_B
+            i_Rst_n         => i_Rst_n,
+            i_Clk           => i_Clk,
+            i_N             => i_Filter_B_N,
+            i_Z             => i_Filter_B_Z,
+            i_M             => i_Filter_B_M,
+            i_id            => Front_ID,
+            i_Din           => Front_Din,
+            i_Rdy           => Front_Din_Rdy,
+            o_Fitler_A_Dout => open,
+            o_Fitler_B_Dout => Front_Filter_B
         );
 
-    EP_Capture_Filter_front_A_w <= std_logic_vector(o_out_temp_front_A(0)); -- temp only with constant pipeline_size : integer := 1; see next step mux phase correction 
-    EP_Capture_Filter_front_B_w <= std_logic_vector(o_out_temp_front_B(0)); -- temp only with constant pipeline_size : integer := 1; see next step mux phase correction 
-
-    o_EP_Capture_Filter_front_A_w <= EP_Capture_Filter_front_A_w;
-    o_EP_Capture_Filter_front_B_w <= EP_Capture_Filter_front_B_w;
+    o_Front_Filter_A <= std_logic_vector(Front_Filter_A(0));
+    o_Front_Filter_B <= std_logic_vector(Front_Filter_B(0)); -- EP_Capture_Filter_front_B_w;
 
     -----------------------------------------------------------------
     -- Energy correction front
     -----------------------------------------------------------------
 
-    EC_Base_Address <= i_Base_Address & X"2";
-
-    Inst_Energy_correction_front : entity work.Energy_correction
-        port map(
-            -- Reset and Clock
-            i_Rst_n        => i_Rst_n,
-            i_Clk          => i_Clk,
-            i_Threshold    => i_Threshold,
-            i_Base_Address => EC_Base_Address,
-            i_Data         => i_Data,
-            i_Address      => i_Address,
-            i_Wr           => i_Wr,
-            i_Din_Rdy      => Rdy_front,
-            i_Filter_A     => EP_Capture_Filter_front_A_w,
-            i_Filter_B     => EP_Capture_Filter_front_B_w,
-            o_Event_A      => o_Event_A_front,
-            o_Event_B      => o_Event_B_front,
-            o_A_B          => o_A_B_front,
-            o_Event_Energy => o_Event_Energy_front,
-            o_Event_Rdy    => o_Event_Rdy -- means result has been read
-
-        );
+    --    EC_Base_Address <= i_Base_Address & X"2";
+    --
+    --    Inst_Front_Energy_Correction : entity work.Energy_correction
+    --        port map(
+    --            -- Reset and Clock
+    --            i_Rst_n        => i_Rst_n,
+    --            i_Clk          => i_Clk,
+    --            i_Threshold    => i_Threshold,
+    --            i_Delta        => i_Delta,
+    --            i_Base_Address => EC_Base_Address,
+    --            i_Data         => i_Data,
+    --            i_Address      => i_Address,
+    --            i_Wr           => i_Wr,
+    --            i_Din_Rdy      => Front_Din_Rdy,
+    --            i_Filter_A     => std_logic_vector(Front_Filter_A(0)),
+    --            i_Filter_B     => std_logic_vector(Front_Filter_B(0)),
+    --            o_Debug        => open,
+    --            o_Event_A      => o_Front_Event_A,
+    --            o_Event_B      => o_Front_Event_B,
+    --            o_A_B          => o_Front_A_B,
+    --            o_Event_Energy => o_Front_Event_Energy,
+    --            o_Event_Rdy    => o_Front_Event_Rdy -- means result has been read
+    --
+    --        );
 
     ---------------------------------------------------------------------------------------------------------------------
     --
@@ -244,96 +196,81 @@ begin
     --
     ----------------------------------------------------------------------------------------------------------------------
 
-    --------------------------------------------------------------------------------------------
-    -- back mux
-    --------------------------------------------------------------------------------------------
-
-    Inst_EP_in_mux_back : entity work.EP_in_mux
+    Inst_Back_EP_in_mux : entity work.EP_PM_in_mux
         port map(
             i_Rst_n         => i_Rst_n,
             i_CLOCK_100_MHZ => i_Clk,
-            --ADC
-            i_Rdy           => i_DU_ADC_Ready_100_front,
-            i_Din           => i_DU_ADC_Back_Dout,
-            --filter
-            o_Rdy           => Rdy_back,
-            o_Din           => Din_back,
-            o_id            => id_back
+            i_Rdy           => i_Din_Rdy,
+            i_Din           => i_Back_Din,
+            o_Rdy           => Back_Din_Rdy,
+            o_Din           => Back_Din,
+            o_id            => Back_ID
         );
 
     --------------------------------------------------------------------------------------------
     -- filter back A
     --------------------------------------------------------------------------------------------
 
-    Inst_Filter_back_A : entity work.EP_PM_Filter
+    Inst_Back_Filter_A : entity work.EP_PM_Filter
         port map(
-            i_Rst_n     => i_Rst_n,
-            i_Clk       => i_Clk,
-            
-            i_N  => i_sum_plus_A,
-            i_Z  => i_sum_zero_A,
-            i_M => i_sum_minus_A,
-            
-            i_id        => id_back,
-            i_Din       => Din_back,
-            i_Rdy       => Rdy_back,
-            
-            o_Dout      => o_out_temp_back_A
+            i_Rst_n         => i_Rst_n,
+            i_Clk           => i_Clk,
+            i_N             => i_Filter_A_N,
+            i_Z             => i_Filter_A_Z,
+            i_M             => i_Filter_A_M,
+            i_id            => Back_ID,
+            i_Din           => Back_Din,
+            i_Rdy           => Back_Din_Rdy,
+            o_Fitler_A_Dout => Back_Filter_A,
+            o_Fitler_B_Dout => open
         );
 
     --------------------------------------------------------------------------------------------
     -- filter front B
     --------------------------------------------------------------------------------------------
 
-    Inst_Filter_back_B : entity work.EP_PM_Filter_B
+    Inst_Filter_back_B : entity work.EP_PM_Filter
         port map(
-            i_Rst_n     => i_Rst_n,
-            i_Clk       => i_Clk,
-            
-            i_N  => i_sum_plus_B,
-            i_Z  => i_sum_zero_B,
-            i_M => i_sum_minus_B,
-            
-            i_id        => id_back,
-            i_Din       => Din_back,
-            i_Rdy       => Rdy_back,
-            
-            o_Dout      => o_out_temp_back_B
+            i_Rst_n         => i_Rst_n,
+            i_Clk           => i_Clk,
+            i_N             => i_Filter_B_N,
+            i_Z             => i_Filter_B_Z,
+            i_M             => i_Filter_B_M,
+            i_id            => Back_ID,
+            i_Din           => Back_Din,
+            i_Rdy           => Back_Din_Rdy,
+            o_Fitler_A_Dout => open,
+            o_Fitler_B_Dout => Back_Filter_B
         );
 
-    EP_Capture_Filter_back_A_w <= std_logic_vector(o_out_temp_back_A(0)); -- temp only with constant pipeline_size : integer := 1; see next step mux phase correction 
-    EP_Capture_Filter_back_B_w <= std_logic_vector(o_out_temp_back_B(0)); -- temp only with constant pipeline_size : integer := 1; see next step mux phase correction 
-
-    o_Raw_Filter_A <= EP_Capture_Filter_back_A_w;
-    o_Raw_Filter_B <= EP_Capture_Filter_back_B_w;
+    o_Back_Filter_A <= std_logic_vector(Back_Filter_A(0));
+    o_Back_Filter_B <= std_logic_vector(Back_Filter_B(0));
 
     -----------------------------------------------------------------
     -- Energy correction back
     -----------------------------------------------------------------
 
-    Inst_Energy_correction_back : entity work.Energy_correction
-        port map(
-            -- Reset and Clock
-            i_Rst_n        => i_Rst_n,
-            i_Clk          => i_Clk,
-            i_Threshold    => i_Threshold,
-            i_Base_Address => EC_Base_Address,
-            i_Data         => i_Data,
-            i_Address      => i_Address,
-            i_Wr           => i_Wr,
-            i_Din_Rdy      => Rdy_back,
-            -- input EP capture filter
-
-            i_Filter_A     => EP_Capture_Filter_back_A_w,
-            i_Filter_B     => EP_Capture_Filter_back_B_w,
-            --  Event_detect
-            o_Event_A      => o_Event_A_back,
-            o_Event_B      => o_Event_B_back,
-            o_A_B          => o_A_B_back,
-            --  output result   
-            o_Event_Energy => o_Event_Energy_back,
-            o_Event_Rdy    => o_Event_Ready_back -- means result has been read
-
-        );
+    --    Inst_Back_Energy_Correction : entity work.Energy_correction
+    --        port map(
+    --            -- Reset and Clock
+    --            i_Rst_n        => i_Rst_n,
+    --            i_Clk          => i_Clk,
+    --            i_Threshold    => i_Threshold,
+    --            i_Delta        => i_Delta,
+    --            i_Base_Address => EC_Base_Address,
+    --            i_Data         => i_Data,
+    --            i_Address      => i_Address,
+    --            i_Wr           => i_Wr,
+    --            i_Din_Rdy      => Back_Din_Rdy,
+    --            i_Filter_A     => std_logic_vector(Back_Filter_A(0)),
+    --            i_Filter_B     => std_logic_vector(Back_Filter_B(0)),
+    --            o_Debug        => open,
+    --            o_Event_A      => o_Back_Event_A,
+    --            o_Event_B      => o_Back_Event_B,
+    --            o_A_B          => o_Back_A_B,
+    --            o_Event_Energy => o_Back_Event_Energy,
+    --            o_Event_Rdy    => o_Back_Event_Rdy -- means result has been read
+    --
+    --        );
 
 end architecture Behavioral;

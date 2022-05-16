@@ -9,14 +9,14 @@ package DORN_EP_Package is
     -- One pixel front and back
     ----------------------------------------------------------------------------------
 
-    -- constant pipeline_size : integer := 1;
-    -- constant id_size       : integer := 0;
+    --     constant pipeline_size : integer := 1;
+    --     constant id_size       : integer := 0;
 
     ----------------------------------------------------------------------------------
     -- Dispatch board
     ----------------------------------------------------------------------------------    
-    --    constant pipeline_size : integer := 4;
-    --    constant id_size       : integer := 1; 
+    --        constant pipeline_size : integer := 4;
+    --        constant id_size       : integer := 1; 
 
     ----------------------------------------------------------------------------------
     -- All instrument

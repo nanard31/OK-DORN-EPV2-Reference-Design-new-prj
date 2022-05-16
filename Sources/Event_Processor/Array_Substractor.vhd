@@ -71,14 +71,12 @@ begin
             if rising_edge(i_CLOCK_100_MHZ) then
 
                 if i_Rdy = '1' then
-                o_out_temp(to_integer(i_id-5)) <= i_sum_array_N(to_integer(i_id-5)) - i_sum_array_M(to_integer(i_id-5));
+                    o_out_temp(to_integer(i_id - 5)) <= i_sum_array_N(to_integer(i_id - 5)) - i_sum_array_M(to_integer(i_id - 5));
                 end if;
 
             end if;
         end if;
     end process;
-
-   
 
 end;
 

@@ -20,47 +20,27 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
 
 use work.DORN_EP_Package.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
-entity EP_PM_Sum is
+entity EP_PM_FIFO is
     port(
         -- Reset and Clock
 
-        i_Rst_n     : in  std_logic;
-        i_Clk       : in  std_logic;
-        -- Param
-
-        i_size      : in  unsigned(5 downto 0);
-        -- Ready flag input
-
-        i_Rdy       : in  std_logic;
-        --i_id    : in  std_logic_vector(id_size downto 0);
-        i_id        : in  unsigned(id_size downto 0);
-        -- Data input
-        i_Din       : in  std_logic_vector(15 downto 0);
-        -- output to another Sum block
-
---        o_rdy       : out std_logic_vector(0 to pipeline_size - 1);
---        o_id        : out std_logic_vector(id_size downto 0);
-        o_out       : out std_logic_vector(15 downto 0);
-        -- sum	
-
-        o_sum       : out signed(31 downto 0);
-        o_sum_array : out Array_8x31_type
+        i_Rst_n         : in  std_logic;
+        i_Clk           : in  std_logic;
+        i_size          : in  unsigned(5 downto 0);
+        i_ADC_ID        : in  unsigned(id_size downto 0);
+        i_Din           : in  std_logic_vector(15 downto 0);
+        i_Din_Rdy       : in  std_logic;
+        o_Dout          : out std_logic_vector(15 downto 0);
+        o_Sum           : out signed(31 downto 0);
+        o_sum_array_out : out Array_8x31_type
     );
-end EP_PM_Sum;
+end EP_PM_FIFO;
 
-architecture Behavioral of EP_PM_Sum is
+architecture Behavioral of EP_PM_FIFO is
 
     --	FSM
     type FSM_ReadState is (load_ram_zero, set_pointer, wait_rdy, manage_ptr);
@@ -83,7 +63,7 @@ architecture Behavioral of EP_PM_Sum is
     signal addra     : unsigned(id_size + 6 downto 0);
     signal addrb     : unsigned(id_size + 6 downto 0);
 
-    signal sum_array : Array_8x31_type; --debug
+    signal o_sum_array : Array_8x31_type; --debug
 
 begin
 
@@ -128,30 +108,17 @@ begin
             ptr_rd <= (others => '0');
 
             --sum	
-            sum_array   <= (others => (others => '0'));
             o_sum_array <= (others => (others => '0'));
 
-            --		-----------------debug
-            --		view_sum 	<= (others => '0');	
-            --		view_i_Din		<= (others => '0');	
-            --		view_doutb	<= (others => '0');	
-            --		-------------------------------------------------------------------------------------
+            o_sum_array_out <= (others => (others => '0'));
 
-            -- out science event
-
-            --o_out_array <= (others => (others => '0'));
-            --o_rdy <= (others => '0');
-
-            --o_id  <= (others => '0');
-            --o_out <= (others => '0');
-            o_sum <= (others => '0');
+            o_Sum <= (others => '0');
 
         else
 
             if rising_edge(i_Clk) then
 
-                wea   <= "0";
-                --o_rdy <= (others => '0');
+                wea <= "0";
 
                 case case_FSM_ReadState is
 
@@ -170,37 +137,33 @@ begin
 
                         ptr_wr <= i_size;
 
-                        --if i_Rdy = '1' and to_integer(unsigned(i_id))=pipeline_size-1 then
-                        if i_Rdy = '1' and to_integer(i_id) = pipeline_size - 1 then
+                        if i_Din_Rdy = '1' and to_integer(i_ADC_ID) = pipeline_size - 1 then
                             case_FSM_ReadState <= wait_rdy;
                         end if;
 
                     when wait_rdy =>
 
-                        if i_Rdy = '1' then -- test before each sum
+                        if i_Din_Rdy = '1' then -- test before each sum
                             --if i_id(0)='1' or i_id(1)='1' or i_id(2)='1' then
 
-                            save_i_id <= i_id;
-                            --o_id      <= i_id;
+                            save_i_id <= i_ADC_ID;
 
                             -- write data RAM
                             wea  <= "1";
                             dina <= unsigned(i_Din);
 
-                            addra <= (i_id) & ptr_wr; -- set write RAM add 
-                            addrb <= (i_id) & ptr_rd; -- set read	RAM add 
+                            addra <= i_ADC_ID & ptr_wr; -- set write RAM add 
+                            addrb <= i_ADC_ID & ptr_rd; -- set read	RAM add 
 
                             --debug
                             --o_out_array <= doutb_array;
                             -- out component
 
-                            o_sum <= sum_array(To_integer(i_id));
-                            o_sum_array <= sum_array;
+                            o_Sum           <= o_sum_array(To_integer(i_ADC_ID));
+                            o_sum_array_out <= o_sum_array;
 
-                            --o_rdy(To_integer(i_id)) <= '1';
-
-                            sum_array(To_integer(i_id - 1)) <= sum_array(To_integer(i_id - 1)) + signed(dina) - signed(doutb);
-
+                            o_sum_array(To_integer(i_ADC_ID - 1)) <= o_sum_array(To_integer(i_ADC_ID - 1)) + signed(dina) - signed(doutb);
+                            --o_sum_array(To_integer(i_ADC_ID) + pipeline_size ) <= o_sum_array(To_integer(i_ADC_ID) + pipeline_size ) + signed(i_Din) - signed(doutb);
                             -- -----------------debug-----------------------------------------------------------------
                             -- view_sum 	<= o_sum(To_integer(unsigned(i_id))) + signed(i_Din(To_integer(unsigned(i_id))));-- - signed(doutb(To_integer(unsigned(i_id))));
                             -- view_i_Din	<= signed(i_Din(To_integer(unsigned(i_id))));
@@ -238,7 +201,7 @@ begin
 
                         case_FSM_ReadState <= wait_rdy;
 
-                    when others => null;
+                    when others => null; -- @suppress "Case statement contains all choices explicitly. You can safely remove the redundant 'others'"
 
                 end case;
 
@@ -249,7 +212,7 @@ begin
     --------------------
     --	decode id from Rdy
     --------------------	
-    o_out <= doutb;
+    o_Dout <= doutb;
 
 end;
 
