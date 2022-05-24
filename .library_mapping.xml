@@ -6,10 +6,8 @@
   <Mappings Location="Sources/OpalKelly" Library="not mapped"/>
   <Mappings Location="Sources_NX" Library="not mapped"/>
   <Mappings Location="Synthesis" Library="not mapped"/>
-  <Mappings Location="TestBench" Library="not mapped"/>
   <Mappings Location="Tests" Library="not mapped"/>
   <Mappings Location="Common Libraries/STD" Library="std"/>
   <Mappings Location="" Library="work"/>
-  <Mappings Location="Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen" Library="work"/>
-  <Mappings Location="TestBench/TB_Event_processor.vhd" Library="work"/>
+  <Mappings Location="Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen/sources_1/ip" Library="work"/>
 </com.sigasi.hdt.shared.librarymapping.model:LibraryMappings>
