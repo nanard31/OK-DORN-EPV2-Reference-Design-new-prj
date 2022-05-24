@@ -3,9 +3,13 @@
   <Mappings Location="Common Libraries/IEEE" Library="ieee"/>
   <Mappings Location="Common Libraries/IEEE Synopsys" Library="ieee"/>
   <Mappings Location="Common Libraries" Library="not mapped"/>
+  <Mappings Location="Sources/OpalKelly" Library="not mapped"/>
+  <Mappings Location="Sources_NX" Library="not mapped"/>
+  <Mappings Location="Synthesis" Library="not mapped"/>
+  <Mappings Location="TestBench" Library="not mapped"/>
+  <Mappings Location="Tests" Library="not mapped"/>
   <Mappings Location="Common Libraries/STD" Library="std"/>
-  <Mappings Location="Common Libraries/unimacro" Library="unimacro"/>
-  <Mappings Location="unimacro" Library="unimacro"/>
-  <Mappings Location="unisims" Library="unisim"/>
   <Mappings Location="" Library="work"/>
+  <Mappings Location="Synthesis/Vivado/OK-DORN-EP-Reference_Design/OK-DORN-EP-Reference_Design.gen" Library="work"/>
+  <Mappings Location="TestBench/TB_Event_processor.vhd" Library="work"/>
 </com.sigasi.hdt.shared.librarymapping.model:LibraryMappings>
